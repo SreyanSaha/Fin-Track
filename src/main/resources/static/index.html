@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>FinTrack • Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        :root{
+          --primary:#6750A4;
+          --on-primary:#fff;
+          --background:#F4EFFA;
+          --surface:#fff;
+          --outline:#CAC4D0;
+          --success:#2E7D32;
+          --danger:#B3261E;
+          --shadow:rgba(0,0,0,.14);
+        }
+
+        *{box-sizing:border-box;font-family:Roboto}
+
+        body{
+          margin:0;
+          background:linear-gradient(135deg,#EADDFF,#F6EDFF);
+          padding:14px;
+        }
+
+        .layout{
+          display:grid;
+          grid-template-columns:280px 1fr;
+          gap:16px;
+          max-width:1600px;
+          margin:auto;
+          height:calc(100vh - 28px);
+        }
+
+        .card{
+          background:var(--surface);
+          border-radius:22px;
+          box-shadow:0 10px 30px var(--shadow);
+          padding:16px;
+          display:flex;
+          flex-direction:column;
+        }
+
+        /* LEFT CARD */
+        .sidebar-scroll{
+          max-height: 650px;   /* REQUIRED */
+          overflow-y:auto;
+          flex:1;
+          margin-bottom:12px;
+        }
+
+        .month-item{
+          padding:12px 14px;
+          border-radius:14px;
+          cursor:pointer;
+          margin-bottom:8px;
+        }
+        .month-item:hover{background:var(--background)}
+        .month-item.active{
+          background:var(--primary);
+          color:var(--on-primary);
+        }
+
+        .sidebar-actions input,
+        .sidebar-actions button{
+          width:100%;
+          padding:10px;
+          margin-top:8px;
+          border-radius:12px;
+          border:1px solid var(--outline);
+        }
+
+        .sidebar-actions button{
+          background:var(--primary);
+          color:white;
+          border:none;
+        }
+
+        .remove-btn{background:var(--danger)!important}
+
+        /* RIGHT CARD */
+        .header{
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          gap:12px;
+        }
+
+        .summary{
+          display:flex;
+          gap:12px;
+          padding:14px;
+          font-weight:600;
+        }
+        .summary div{
+          background:var(--background);
+          padding:10px 16px;
+          border-radius:14px;
+          font-size:14px;
+        }
+
+        .add-record{
+          display:flex;
+          gap:10px;
+          margin:16px 0;
+          flex-wrap:wrap;
+        }
+        .add-record input{
+          padding:10px;
+          border-radius:10px;
+          border:1px solid var(--outline);
+        }
+        .add-record button{
+          background:var(--primary);
+          color:white;
+          border:none;
+          border-radius:10px;
+          padding:10px 16px;
+        }
+
+        .records-scroll{
+          flex:1;
+          max-height: 650px;   /* REQUIRED */
+          overflow-y: auto;
+        }
+
+        table{
+          width:100%;
+          border-collapse:collapse;
+        }
+        th,td{
+          padding:12px;
+          border-bottom:1px solid var(--outline);
+          font-size:15px;
+          text-align:center;        /* horizontal */
+          vertical-align:middle;
+          overflow-x:auto;
+        }
+        th{opacity:.7}
+
+        .actions button{
+          background:none;
+          border:none;
+          cursor:pointer;
+          margin-right:10px;
+        }
+
+        .edit{color:var(--primary)}
+        .delete{color:var(--danger)}
+
+        .save{
+          background:var(--success);
+          color:white;
+          padding:6px 14px;
+          border-radius:8px;
+          border:none;
+        }
+
+        input.table-input{
+          width:100%;
+          padding:8px;
+          border-radius:10px;
+          border:1.5px solid var(--primary);
+        }
+
+        /* STATUS */
+        .footer-summary{
+          margin-top:12px;
+          padding:14px;
+          border-radius:16px;
+          background:var(--background);
+          font-weight:600;
+        }
+        .surplus{color:var(--success)}
+        .deficit{color:var(--danger)}
+
+        /* MODAL */
+        .modal{
+          position:fixed;
+          inset:0;
+          background:rgba(0,0,0,.45);
+          display:none;
+          align-items:center;
+          justify-content:center;
+        }
+        .modal-box{
+          background:white;
+          padding:22px;
+          border-radius:20px;
+          width:320px;
+        }
+        .modal-actions{
+          display:flex;
+          justify-content:flex-end;
+          gap:12px;
+          margin-top:18px;
+        }
+        .modal-actions button{
+          padding:8px 14px;
+          border-radius:10px;
+          border:none;
+        }
+        .cancel-btn{background:#E7E0EC}
+        .confirm-btn{background:var(--danger);color:white}
+
+        @media(max-width:900px){
+          .layout{grid-template-columns:1fr}
+        }
+            .alert {
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 8px 0;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            width: fit-content;
+        }
+        .response-box {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .msg {
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;    /* Hidden by default */
+            animation: fadeIn 0.4s ease;
+        }
+
+        /* SUCCESS MESSAGE */
+        .success {
+            background: #d4f8d4;
+            color: #166f16;
+            border-left: 4px solid #1ea21e;
+        }
+
+        /* ERROR MESSAGE */
+        .error {
+            background: #ffe0e0;
+            color: #a10000;
+            border-left: 4px solid #d10000;
+        }
+
+        .loading {
+            background: #fff3cd;              /* light yellow background */
+            color: #856404;                   /* dark yellow-brown text */
+            border-left: 4px solid #ff7a00;   /* orange theme border */
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;                    /* hidden until needed */
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- LEFT -->
+    <div class="card">
+        <h3>Months</h3>
+        <div class="response-box">
+            <p id="monthSuccessMsg" class="msg success"></p>
+            <p id="monthErrorMsg" class="msg error"></p>
+            <p id="monthLoadingMsg" class="msg loading">Processing request…</p>
+        </div>
+        <div class="sidebar-scroll" id="monthList"></div>
+
+        <div class="sidebar-actions">
+            <input type="month" id="monthInput">
+            <input type="number" placeholder="Target ₹" id="targetInput">
+            <button onclick="checkMonthlyInput()">Add Month</button>
+            <button class="remove-btn" onclick="confirmRemoveMonth()">Remove Month</button>
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="card">
+        <div class="header">
+            <h2 id="monthTitle">Select Month</h2>
+            <div class="summary">
+                <div>Status - <span id="status">-</span></div>
+                <div>Target - ₹<span id="target">0</span></div>
+                <div>Collected - ₹<span id="collected">0</span></div>
+            </div>
+        </div>
+
+        <div class="add-record">
+            <input type="date" id="recDate">
+            <input type="number" placeholder="Amount ₹" id="recAmount">
+            <input type="text" placeholder="Narration" id="recNote">
+            <button onclick="checkRecordInput()">Add</button>
+        </div>
+
+        <div class="response-box">
+            <p id="recordSuccessMsg" class="msg success"></p>
+            <p id="recordErrorMsg" class="msg error"></p>
+            <p id="recordLoadingMsg" class="msg loading">Processing request…</p>
+        </div>
+
+        <div class="records-scroll">
+            <table>
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Narration</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="recordTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+    <div class="modal-box">
+        <div id="modalText"></div>
+        <div class="modal-actions">
+            <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+            <button id="confirmBtn" class="confirm-btn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const yearMonthList=[];
+    const months=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+    let selectedMonth={};
+    let selectedMonthRecords=[];
+
+    const checkRecordInput = ()=>{
+        const success = document.getElementById("recordSuccessMsg");
+        const error = document.getElementById("recordErrorMsg");
+
+        if( Object.keys(selectedMonth).length === 0){
+            success.style.display = "none";
+            error.style.display = "block";
+            error.textContent = "Please choose a month.";
+        }
+        else if(document.getElementById("recDate").value.trim()==="" &&
+          document.getElementById("recAmount").value.trim()===""){
+            success.style.display = "none";
+            error.style.display = "block";
+            error.textContent = "Fields cannot be empty.";
+        }else
+            createRecord();
+    };
+
+    const initPage = async ()=>{
+        document.getElementById("monthSuccessMsg").style.display="none";
+        document.getElementById("monthErrorMsg").style.display="none";
+        document.getElementById("monthLoadingMsg").style.display = "block";
+
+        try{
+            const response = await axios.get('http://localhost:8080/FinTrack/YearlyReportController',
+            {
+                headers:{
+                "Content-Type": "text/plain"
+                }
+            });
+            if(response.status===200 && response.data.status===true){
+                document.getElementById("monthErrorMsg").style.display="none";
+                document.getElementById("monthLoadingMsg").style.display = "none";
+                document.getElementById("monthSuccessMsg").style.display="block";
+                document.getElementById("monthSuccessMsg").textContent=response.data.msg;
+                yearMonthList.splice(0, yearMonthList.length);
+                yearMonthList.push(...response.data.objects);
+                renderMonths();
+                setTimeout(() => {
+                    document.getElementById("monthSuccessMsg").style.display="none";
+                }, 2000);
+            }else if(response.status===200 && response.data.status===false){
+                document.getElementById("monthLoadingMsg").style.display = "none";
+                document.getElementById("monthSuccessMsg").style.display="none";
+                document.getElementById("monthErrorMsg").style.display="block";
+                document.getElementById("monthErrorMsg").textContent=response.data.msg;
+            }
+        }catch(exception){
+            console.log(exception);
+            if (exception.response && exception.response.status === 401) {
+                window.location.href =
+                  "http://localhost:8080/FinTrack/user view/login signup/userLoginSignup.jsp";
+                return;
+            }
+        }
+    }
+
+    initPage();
+
+    const checkMonthlyInput = ()=>{
+        const success = document.getElementById("monthSuccessMsg");
+        const error = document.getElementById("monthErrorMsg");
+
+        if(document.getElementById("monthInput").value.trim()==="" ||
+          document.getElementById("targetInput").value.trim()===""){
+            success.style.display = "none";
+            error.style.display = "block";
+            error.textContent = "Fields cannot be empty.";
+        }else
+            addMonth();
+    };
+
+    const addMonth = async ()=>{
+        document.getElementById("monthSuccessMsg").style.display="none";
+        document.getElementById("monthErrorMsg").style.display="none";
+        document.getElementById("monthLoadingMsg").style.display = "block";
+
+        const year = document.getElementById("monthInput").value.substring(0, 4);
+        const month = document.getElementById("monthInput").value.substring(5, 7);
+
+        try{
+            const response = await axios.post('http://localhost:8080/FinTrack/YearlyReportController',
+            {
+                "yearlyReportYear": year,
+                "yearlyReportMonth": month,
+                "yearlyReportMonthTarget": document.getElementById("targetInput").value,
+            },{
+                headers:{
+                "Content-Type": "text/plain"
+                }
+            });
+            if(response.status===200 && response.data.status===true){
+                document.getElementById("monthErrorMsg").style.display="none";
+                document.getElementById("monthLoadingMsg").style.display = "none";
+                document.getElementById("monthSuccessMsg").style.display="block";
+                document.getElementById("monthSuccessMsg").textContent=response.data.msg;
+                initPage();
+                setTimeout(() => {
+                    document.getElementById("monthSuccessMsg").style.display="none";
+                }, 2000);
+            }else if(response.status===200 && response.data.status===false){
+                document.getElementById("monthLoadingMsg").style.display = "none";
+                document.getElementById("monthSuccessMsg").style.display="none";
+                document.getElementById("monthErrorMsg").style.display="block";
+                document.getElementById("monthErrorMsg").textContent=response.data.msg;
+            }
+        }catch(exception){
+            console.log(exception);
+            if (exception.response && exception.response.status === 401) {
+                window.location.href =
+                  "http://localhost:8080/FinTrack/user view/login signup/userLoginSignup.jsp";
+                return;
+            }
+        }
+    }
+
+    function renderMonths(){
+      monthList.innerHTML="";
+      yearMonthList.forEach(ym=>{
+        const d=document.createElement("div");
+        d.className="month-item";
+        d.textContent=ym.yearlyReportYear+"-"+months[ym.yearlyReportMonth-1];
+        d.onclick=()=>selectMonth(ym,d);
+        monthList.appendChild(d);
+      });
+    }
+
+    function selectMonth(ym,el){
+      document.querySelectorAll(".month-item").forEach(i=>i.classList.remove("active"));
+      el.classList.add("active");
+      monthTitle.textContent=ym.yearlyReportYear+"-"+months[ym.yearlyReportMonth-1];
+      target.textContent=ym.yearlyReportMonthTarget;
+      selectedMonth = structuredClone(ym);
+      renderRecords();
+    }
+
+    const renderRecords = async ()=>{
+      const recordList = await fetchRecords();
+      selectedMonthRecords = [...recordList];
+      recordTable.innerHTML="";
+      let total=0;
+      recordList.forEach((r,i)=>{
+        total+=r.monthlyReportAmount;
+        recordTable.innerHTML+=
+          '<tr>'+
+            '<td>'+r.monthlyReportDate+'</td>'+
+            '<td>'+r.monthlyReportAmount+'</td>'+
+            '<td>'+r.monthlyReportNarration+'</td>'+
+            '<td class="actions">'+
+              '<button class="edit" onclick="editRow(this,' +i+')">Edit</button>'+
+              '<button class="delete" onclick="confirmDelete(\''+r.monthlyReportId+'\', \''+r.monthlyReportDate+'\')">Delete</button>'+
+            '</td>'+
+          '</tr>';
+      });
+      collected.textContent=total;
+      updateStatus(total);
+    }
+
+    const updateStatus = (total)=>{
+        if(total<selectedMonth.yearlyReportMonthTarget){
+            document.getElementById("status").innerHTML='<span class="deficit">'+"Deficit of ₹"+(selectedMonth.yearlyReportMonthTarget-total)+'</span>';
+        }
+        else if(total>selectedMonth.yearlyReportMonthTarget){
+            document.getElementById("status").innerHTML='<span class="surplus">'+"Surplus of ₹"+(total-selectedMonth.yearlyReportMonthTarget)+'</span>';
+        }
+        else{
+            document.getElementById("status").innerHTML='<span class="surplus">Monthly target met.</span>';
+        }
+    };
+
+    function editRow(btn, i){
+        const row = btn.closest("tr");
+        i = Number(i);
+        const r = selectedMonthRecords[i];
+
+        row.innerHTML =
+              '<td><input class="table-input" id="monthlyReportDateUpdate'+i+'" type="date" value="' + r.monthlyReportDate + '"></td>' +
+              '<td><input class="table-input" id="monthlyReportAmountUpdate'+i+'" type="number" value="' + r.monthlyReportAmount + '"></td>' +
+              '<td><input class="table-input" id="monthlyReportNarrationUpdate'+i+'" value="' + r.monthlyReportNarration + '"></td>' +
+              '<td><button class="save" onclick="saveRow(' + i + ', this)">Save</button></td>';
+    }
+
+    const fetchRecords = async ()=>{
+        document.getElementById("recordSuccessMsg").style.display="none";
+        document.getElementById("recordErrorMsg").style.display="none";
+        document.getElementById("recordLoadingMsg").style.display = "block";
+
+        try{
+            const response = await axios.get('http://localhost:8080/FinTrack/MonthlyReportController',
+            {
+                params:{
+                    "yearlyReportMonth": selectedMonth.yearlyReportMonth,
+                    "yearlyReportYear": selectedMonth.yearlyReportYear,
+                    "yearlyReportMonthTarget": selectedMonth.yearlyReportMonthTarget,
+                }
+            },{
+                headers:{
+                "Content-Type": "text/plain"
+                }
+            });
+            if(response.status===200 && response.data.status===true){
+                document.getElementById("recordErrorMsg").style.display="none";
+                document.getElementById("recordLoadingMsg").style.display = "none";
+                document.getElementById("recordSuccessMsg").style.display="block";
+                document.getElementById("recordSuccessMsg").textContent=response.data.msg;
+                setTimeout(() => {
+                    document.getElementById("recordSuccessMsg").style.display="none";
+                }, 1000);
+                return response.data.objects;
+            }else if(response.status===200 && response.data.status===false){
+                document.getElementById("recordLoadingMsg").style.display = "none";
+                document.getElementById("recordSuccessMsg").style.display="none";
+                document.getElementById("recordErrorMsg").style.display="block";
+                document.getElementById("recordErrorMsg").textContent=response.data.msg;
+            }
+        }catch(exception){
+            console.log(exception);
+            if (exception.response && exception.response.status === 401) {
+                window.location.href =
+                  "http://localhost:8080/FinTrack/user view/login signup/userLoginSignup.jsp";
+                return;
+            }
+        }
+    };
+
+    const createRecord = async ()=>{
+        document.getElementById("recordSuccessMsg").style.display="none";
+        document.getElementById("recordErrorMsg").style.display="none";
+        document.getElementById("recordLoadingMsg").style.display = "block";
+        console.log(selectedMonth.yearlyReportId);
+        try{
+            const response = await axios.post('http://localhost:8080/FinTrack/MonthlyReportController',
+            {
+                "yearlyReportId": selectedMonth.yearlyReportId,
+                "monthlyReportDate":document.getElementById("recDate").value,
+                "monthlyReportAmount":document.getElementById("recAmount").value,
+                "monthlyReportNarration":document.getElementById("recNote").value,
+            },{
+                headers:{
+                "Content-Type": "text/plain"
+                }
+            });
+            if(response.status===200 && response.data.status===true){
+                document.getElementById("recordErrorMsg").style.display="none";
+                document.getElementById("recordLoadingMsg").style.display = "none";
+                document.getElementById("recordSuccessMsg").style.display="block";
+                document.getElementById("recordSuccessMsg").textContent=response.data.msg;
+                setTimeout(() => {
+                    renderRecords();
+                }, 1000);
+            }else if(response.status===200 && response.data.status===false){
+                document.getElementById("recordLoadingMsg").style.display = "none";
+                document.getElementById("recordSuccessMsg").style.display="none";
+                document.getElementById("recordErrorMsg").style.display="block";
+                document.getElementById("recordErrorMsg").textContent=response.data.msg;
+            }
+        }catch(exception){
+            console.log(exception);
+            if (exception.response && exception.response.status === 401) {
+                window.location.href =
+                  "http://localhost:8080/FinTrack/user view/login signup/userLoginSignup.jsp";
+                return;
+            }
+        }
+    };
+
+    const isValidRecordUpdate = (i)=>{
+        const success = document.getElementById("recordSuccessMsg");
+        const error = document.getElementById("recordErrorMsg");
+
+        if(document.getElementById("monthlyReportDateUpdate"+i).value.trim()==="" ||
+          document.getElementById("monthlyReportAmountUpdate"+i).value.trim()==="" ){
+            success.style.display = "none";
+            error.style.display = "block";
+            error.textContent = "Fields cannot be empty.";
+            return false;
+        }
+        return true;
+    };
+
+    const saveRow = async (i)=>{
+      if(!isValidRecordUpdate(i))return;
+      const r = selectedMonthRecords[i];
+      document.getElementById("recordSuccessMsg").style.display="none";
+      document.getElementById("recordErrorMsg").style.display="none";
+      document.getElementById("recordLoadingMsg").style.display = "block";
+      console.log(selectedMonth.yearlyReportId);
+      try{
+          const response = await axios.put('http://localhost:8080/FinTrack/MonthlyReportController',
+          {
+              "monthlyReportId": r.monthlyReportId,
+              "monthlyReportNarration": document.getElementById("monthlyReportNarrationUpdate"+i).value,
+              "monthlyReportAmount": document.getElementById("monthlyReportAmountUpdate"+i).value,
+              "yearlyReportId": r.yearlyReportId,
+              "monthlyReportDate": document.getElementById("monthlyReportDateUpdate"+i).value,
+          },{
+              headers:{
+              "Content-Type": "text/plain"
+              }
+          });
+          if(response.status===200 && response.data.status===true){
+              document.getElementById("recordErrorMsg").style.display="none";
+              document.getElementById("recordLoadingMsg").style.display = "none";
+              document.getElementById("recordSuccessMsg").style.display="block";
+              document.getElementById("recordSuccessMsg").textContent=response.data.msg;
+              setTimeout(() => {
+                  renderRecords();
+              }, 1500);
+          }else if(response.status===200 && response.data.status===false){
+              document.getElementById("recordLoadingMsg").style.display = "none";
+              document.getElementById("recordSuccessMsg").style.display="none";
+              document.getElementById("recordErrorMsg").style.display="block";
+              document.getElementById("recordErrorMsg").textContent=response.data.msg;
+          }
+        }catch(exception){
+            console.log(exception);
+            if (exception.response && exception.response.status === 401) {
+              window.location.href =
+                "http://localhost:8080/FinTrack/user view/login signup/userLoginSignup.jsp";
+              return;
+          }
+        }
+    };
+
+    function confirmDelete(id, date){
+      if(!selectedMonth) return;
+      openModal("Delete this record of "+date+"?",()=>{
+          deleteRecord(id);
+          closeModal();
+          setTimeout(() => {
+              renderRecords();
+          }, 1500);
+      });
+    }
+
+    function confirmRemoveMonth(){
+      if(!selectedMonth) return;
+      openModal("Remove all records of "+selectedMonth.yearlyReportYear+"-"+months[selectedMonth.yearlyReportMonth-1]+"?",()=>{
+        deleteMonth();
+        recordTable.innerHTML="";
+        status.textContent="—";
+        closeModal();
+        setTimeout(() => {
+            location.reload(true);
+        }, 1500);
+      });
+    }
+
+    const deleteRecord = async (id)=>{
+        document.getElementById("recordSuccessMsg").style.display="none";
+        document.getElementById("recordErrorMsg").style.display="none";
+        document.getElementById("recordLoadingMsg").style.display = "block";
+
+        try{
+            const response = await axios.delete('http://localhost:8080/FinTrack/MonthlyReportController',
+            {
+                params:{
+                    "monthlyReportId": id,
+                }
+            },{
+                headers:{
+                "Content-Type": "text/plain"
+                }
+            });
+            if(response.status===200 && response.data.status===true){
+                document.getElementById("recordErrorMsg").style.display="none";
+                document.getElementById("recordLoadingMsg").style.display = "none";
+                document.getElementById("recordSuccessMsg").style.display="block";
+                document.getElementById("recordSuccessMsg").textContent=response.data.msg;
+            }else if(response.status===200 && response.data.status===false){
+                document.getElementById("recordLoadingMsg").style.display = "none";
+                document.getElementById("recordSuccessMsg").style.display="none";
+                document.getElementById("recordErrorMsg").style.display="block";
+                document.getElementById("recordErrorMsg").textContent=response.data.msg;
+            }
+        }catch(exception){
+            console.log(exception);
+            if (exception.response && exception.response.status === 401) {
+                window.location.href =
+                  "http://localhost:8080/FinTrack/user view/login signup/userLoginSignup.jsp";
+                return;
+            }
+        }
+    };
+
+    const deleteMonth = async ()=>{
+        document.getElementById("monthSuccessMsg").style.display="none";
+        document.getElementById("monthErrorMsg").style.display="none";
+        document.getElementById("monthLoadingMsg").style.display = "block";
+
+        try{
+            const response = await axios.delete('http://localhost:8080/FinTrack/YearlyReportController',
+            {
+                params:{
+                    "yearlyReportId": selectedMonth.yearlyReportId,
+                }
+            },{
+                headers:{
+                "Content-Type": "text/plain"
+                }
+            });
+            if(response.status===200 && response.data.status===true){
+                document.getElementById("monthErrorMsg").style.display="none";
+                document.getElementById("monthLoadingMsg").style.display = "none";
+                document.getElementById("monthSuccessMsg").style.display="block";
+                document.getElementById("monthSuccessMsg").textContent=response.data.msg;
+            }else if(response.status===200 && response.data.status===false){
+                document.getElementById("monthLoadingMsg").style.display = "none";
+                document.getElementById("monthSuccessMsg").style.display="none";
+                document.getElementById("monthErrorMsg").style.display="block";
+                document.getElementById("monthErrorMsg").textContent=response.data.msg;
+            }
+        }catch(exception){
+            console.log(exception);
+            if (exception.response && exception.response.status === 401) {
+                window.location.href =
+                  "http://localhost:8080/FinTrack/user view/login signup/userLoginSignup.jsp";
+                return;
+            }
+        }
+    };
+
+    function openModal(text,action){
+      modalText.textContent=text;
+      confirmBtn.onclick=()=>{action();}
+      modal.style.display="flex";
+    }
+    function closeModal(){modal.style.display="none";}
+</script>
+
+</body>
+</html>

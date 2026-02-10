@@ -2,6 +2,7 @@ package com.fin.model;
 
 import jakarta.persistence.*;
 import java.time.Year;
+import java.util.List;
 
 @Entity
 @Table(name = "yearlyReports")
@@ -23,6 +24,9 @@ public class YearlyReports {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "yearlyReports", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<MonthlyReports> monthlyReportsList;
 
     public Long getyReportId() {
         return yReportId;
