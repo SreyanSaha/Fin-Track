@@ -7,13 +7,14 @@ import java.util.List;
 @Entity
 @Table(name = "yearlyReports")
 public class YearlyReports {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "yReportId")
     private Long yReportId;
 
     @Column(nullable = false, name = "yReportYear")
-    private Year yReportYear;
+    private int yReportYear;
 
     @Column(nullable = false, name = "yReportMonth")
     private short yReportMonth;
@@ -36,11 +37,11 @@ public class YearlyReports {
         this.yReportId = yReportId;
     }
 
-    public Year getyReportYear() {
+    public int getyReportYear() {
         return yReportYear;
     }
 
-    public void setyReportYear(Year yReportYear) {
+    public void setyReportYear(int yReportYear) {
         this.yReportYear = yReportYear;
     }
 
