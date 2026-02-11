@@ -9,6 +9,7 @@ public class UserPublicDataDto {
         this.userEmail=user.getUserEmail();
         this.username=user.getUserName();
     }
+
     public String getUserEmail() {
         return userEmail;
     }

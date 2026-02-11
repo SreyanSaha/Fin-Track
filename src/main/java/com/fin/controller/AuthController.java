@@ -3,6 +3,7 @@ package com.fin.controller;
 import com.fin.dto.OtpDto;
 import com.fin.dto.ServiceResponse;
 import com.fin.dto.UserLoginDto;
+import com.fin.dto.UserPublicDataDto;
 import com.fin.model.User;
 import com.fin.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/auth/")
+@RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
 
@@ -20,30 +21,34 @@ public class AuthController {
         this.authService=authService;
     }
 
-    @PostMapping("signup")
+    @PostMapping("/signup")
     public ResponseEntity<?> clientSignup(@RequestBody User user){
 
         ServiceResponse<Boolean> response = authService.registerUser(user);
 
-        if(response.getStatus()) return ResponseEntity.status(HttpStatus.CREATED).body(response);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PostMapping("signup/otp")
-    public ServiceResponse<?> clientSignupOtp(@RequestBody OtpDto otpDto){
+    @PostMapping("/signup/otp")
+    public ResponseEntity<?> clientSignupOtp(@RequestBody OtpDto otpDto){
 
-        return new ServiceResponse<>("");
+        ServiceResponse<UserPublicDataDto> response = authService.signupUser(otpDto);
+
+        if(!response.getStatus()) return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("login")
-    public ServiceResponse<?> clientLogin(@RequestBody UserLoginDto userLoginDto){
+    @PostMapping("/login")
+    public ResponseEntity<?> clientLogin(@RequestBody UserLoginDto userLoginDto){
 
-        return new ServiceResponse<>("");
+        ServiceResponse<Boolean> response = authService.loginUser(userLoginDto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PostMapping("logout")
-    public ServiceResponse<?> clientLogout(){
+    @PostMapping("/logout")
+    public ResponseEntity<?> clientLogout(){
 
-        return new ServiceResponse<>("");
+        return ResponseEntity.status(HttpStatus.OK).body("");
     }
 }

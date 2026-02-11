@@ -308,7 +308,7 @@
                 "userPassword": document.getElementById("loginPass").value,
             },{
                 headers:{
-                "Content-Type": "text/plain"
+                "Content-Type": "application/json"
                 }
             });
             if(response.status===200 && response.data.status===true){
@@ -359,13 +359,13 @@
         document.getElementById("signupErrorMsgOtp").style.display="none";
         document.getElementById("loadingMsgOtp").style.display = "none";
         try{
-            const response = await axios.post('http://localhost:8080/FinTrack/ClientSignupMailController',
+            const response = await axios.post('http://localhost:8080/auth/signup',
             {
                 "userEmail": document.getElementById("signupEmail").value,
                 "userPassword": document.getElementById("signupPass").value
             },{
                 headers:{
-                    "Content-Type": "text/plain"
+                    "Content-Type": "application/json"
                 }
             });
             if(response.status===200 && response.data.status===true){
@@ -392,16 +392,16 @@
         document.getElementById("signupErrorMsgOtp").style.display="none";
         document.getElementById("loadingMsgOtp").style.display = "block";
         try{
-            const response = await axios.post('http://localhost:8080/FinTrack/ClientSignupController',
+            const response = await axios.post('http://localhost:8080/auth/signup/otp',
             {
                 "otp": document.getElementById("otpInput").value,
                 "email": document.getElementById("signupEmail").value,
             },{
                 headers:{
-                "Content-Type": "text/plain"
+                "Content-Type": "application/json"
                 }
             });
-            if(response.status===200 && response.data.status===true){
+            if(response.status===201 && response.data.status===true){
                 document.getElementById("signupErrorMsgOtp").style.display="none";
                 document.getElementById("loadingMsgOtp").style.display = "none";
                 document.getElementById("signupSuccessMsgOtp").style.display="block";
