@@ -4,11 +4,17 @@ import com.fin.dto.*;
 import com.fin.mail.MailText;
 import com.fin.model.User;
 import com.fin.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.net.http.HttpRequest;
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,13 +29,17 @@ public class AuthService {
             ConcurrentHashMap<String, User>();
     private final MailText mailText=new MailText();
     private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    AuthService(UserRepository userRepository, Validation validation, EmailService emailService, AuthenticationManager authenticationManager){
+    AuthService(UserRepository userRepository, Validation validation,
+                EmailService emailService, PasswordEncoder passwordEncoder
+            , AuthenticationManager authenticationManager){
         this.userRepository=userRepository;
         this.emailService=emailService;
         this.validation=validation;
         this.authenticationManager=authenticationManager;
+        this.passwordEncoder=passwordEncoder;
     }
 
     public ServiceResponse<Boolean> registerUser(User user){
@@ -64,7 +74,7 @@ public class AuthService {
 
         User user=userStorage.get(otpDto.getEmail());
         user.setUserName(user.getUserEmail().trim().substring(0, user.getUserEmail().trim().lastIndexOf('@')));
-        user.setUserPassword(BCrypt.hashpw(user.getUserPassword(), BCrypt.gensalt(10)));
+        user.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
 
         User savedUser = userRepository.save(user);
         if(savedUser.getUserEmail()==null)
@@ -81,8 +91,19 @@ public class AuthService {
                 + "Please check your inbox.", new UserPublicDataDto(savedUser), true);
     }
 
-    public ServiceResponse<Boolean> loginUser(UserLoginDto userLoginDto) {
-
-        return new ServiceResponse<>("", true);
+    public ServiceResponse<Boolean> loginUser(UserLoginDto userLoginDto, HttpServletRequest request) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                            new UsernamePasswordAuthenticationToken(
+                                    userLoginDto.getUsername(),
+                                    userLoginDto.getUserPassword()
+                            )
+                    );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            System.out.println(authentication.isAuthenticated());
+            return new ServiceResponse<>("Login successful", true);
+        } catch (AuthenticationException e) {
+            return new ServiceResponse<>("Invalid email or password", false);
+        }
     }
 }

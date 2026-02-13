@@ -6,6 +6,7 @@ import com.fin.dto.UserLoginDto;
 import com.fin.dto.UserPublicDataDto;
 import com.fin.model.User;
 import com.fin.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,11 +40,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> clientLogin(@RequestBody UserLoginDto userLoginDto){
+    public ResponseEntity<?> clientLogin(@RequestBody UserLoginDto userLoginDto, HttpServletRequest request){
 
-        ServiceResponse<Boolean> response = authService.loginUser(userLoginDto);
+        ServiceResponse<Boolean> response = authService.loginUser(userLoginDto, request);
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        if(response.getStatus())return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @PostMapping("/logout")

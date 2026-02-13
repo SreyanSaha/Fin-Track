@@ -302,30 +302,32 @@
         document.getElementById("loginErrorMsg").style.display="none";
         document.getElementById("loginLoadingMsg").style.display = "block";
         try{
-            const response = await axios.post('http://localhost:8080/FinTrack/ClientLoginController',
+            const response = await axios.post('http://localhost:8080/auth/login',
             {
                 "username": document.getElementById("loginUser").value,
                 "userPassword": document.getElementById("loginPass").value,
             },{
+                withCredentials: true,
                 headers:{
                 "Content-Type": "application/json"
                 }
             });
-            if(response.status===200 && response.data.status===true){
+            if(response.status===200 || response.data.status===true){
                 document.getElementById("loginErrorMsg").style.display="none";
                 document.getElementById("loginLoadingMsg").style.display = "none";
                 document.getElementById("loginSuccessMsg").style.display="block";
                 document.getElementById("loginSuccessMsg").textContent=response.data.msg;
                 setTimeout(() => {
-                    window.location.replace("http://localhost:8080/FinTrack/index.jsp");
+                    window.location.replace("http://localhost:8080/index");
                 }, 1800);
-            }else if(response.status===200 && response.data.status===false){
+            }
+        }catch(exception){
+            if(exception.status===401 || response.data.status===false){
                 document.getElementById("loginLoadingMsg").style.display = "none";
                 document.getElementById("loginSuccessMsg").style.display="none";
                 document.getElementById("loginErrorMsg").style.display="block";
-                document.getElementById("loginErrorMsg").textContent=response.data.msg;
+                document.getElementById("loginErrorMsg").textContent=exception.response.data.msg;
             }
-        }catch(exception){
             console.log(exception);
         }
     }
