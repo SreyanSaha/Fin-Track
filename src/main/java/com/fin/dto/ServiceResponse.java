@@ -45,6 +45,11 @@ public class ServiceResponse <Type>{
         this.objects=null;
     }
 
+    public ServiceResponse(Type object, boolean status) {
+        this.object = object;
+        this.status=status;
+    }
+
     public ServiceResponse(List<Type> objects) {
         this.objects = objects;
         this.object=null;

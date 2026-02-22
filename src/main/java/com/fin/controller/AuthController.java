@@ -1,11 +1,10 @@
 package com.fin.controller;
 
-import com.fin.dto.OtpDto;
-import com.fin.dto.ServiceResponse;
-import com.fin.dto.UserLoginDto;
-import com.fin.dto.UserPublicDataDto;
+import com.fin.dto.*;
 import com.fin.model.User;
 import com.fin.service.AuthService;
+import com.fin.service.JwtService;
+import com.fin.service.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,10 +15,20 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
+    private final JwtService jwtService;
 
     @Autowired
-    AuthController(AuthService authService){
+    AuthController(AuthService authService, JwtService jwtService){
         this.authService=authService;
+        this.jwtService=jwtService;
+    }
+
+    @PostMapping("/token-health")
+    public ResponseEntity<?> tokenHealth(@RequestBody TokenValidate tokenValidate){
+        boolean isValid=jwtService.validateToken(tokenValidate.getToken(), tokenValidate.getUsername());
+        System.out.println("Token Health: "+isValid);
+        return isValid?ResponseEntity.status(HttpStatus.OK).body(true):
+                ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
     }
 
     @PostMapping("/signup")
@@ -41,9 +50,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> clientLogin(@RequestBody UserLoginDto userLoginDto, HttpServletRequest request){
-
-        ServiceResponse<Boolean> response = authService.loginUser(userLoginDto, request);
-
+        ServiceResponse response=authService.authenticate(userLoginDto);
+//        ServiceResponse<Boolean> response = authService.loginUser(userLoginDto, request);
         if(response.getStatus())return ResponseEntity.status(HttpStatus.OK).body(response);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }

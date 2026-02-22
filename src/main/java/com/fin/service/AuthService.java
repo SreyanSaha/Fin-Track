@@ -13,8 +13,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.net.http.HttpRequest;
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,16 +28,18 @@ public class AuthService {
     private final MailText mailText=new MailText();
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Autowired
     AuthService(UserRepository userRepository, Validation validation,
                 EmailService emailService, PasswordEncoder passwordEncoder
-            , AuthenticationManager authenticationManager){
+            , AuthenticationManager authenticationManager, JwtService jwtService){
         this.userRepository=userRepository;
         this.emailService=emailService;
         this.validation=validation;
         this.authenticationManager=authenticationManager;
         this.passwordEncoder=passwordEncoder;
+        this.jwtService=jwtService;
     }
 
     public ServiceResponse<Boolean> registerUser(User user){
@@ -91,19 +91,46 @@ public class AuthService {
                 + "Please check your inbox.", new UserPublicDataDto(savedUser), true);
     }
 
-    public ServiceResponse<Boolean> loginUser(UserLoginDto userLoginDto, HttpServletRequest request) {
+//    public ServiceResponse<Boolean> loginUser(UserLoginDto userLoginDto, HttpServletRequest request) {
+//        try {
+//            Authentication authentication = authenticationManager.authenticate(
+//                            new UsernamePasswordAuthenticationToken(
+//                                    userLoginDto.getUsername(),
+//                                    userLoginDto.getUserPassword()
+//                            )
+//                    );
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
+//            System.out.println(authentication.isAuthenticated());
+//            return new ServiceResponse<>("Login successful", true);
+//        } catch (AuthenticationException e) {
+//            return new ServiceResponse<>("Invalid email or password", false);
+//        }
+//    }
+
+    public ServiceResponse<AuthResponse> authenticate(UserLoginDto userLoginDto) {
         try {
+
             Authentication authentication = authenticationManager.authenticate(
-                            new UsernamePasswordAuthenticationToken(
-                                    userLoginDto.getUsername(),
-                                    userLoginDto.getUserPassword()
-                            )
-                    );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            System.out.println(authentication.isAuthenticated());
-            return new ServiceResponse<>("Login successful", true);
-        } catch (AuthenticationException e) {
+                    new UsernamePasswordAuthenticationToken(
+                            userLoginDto.getUsername(),
+                            userLoginDto.getUserPassword()
+                    )
+            );
+
+            if (authentication.isAuthenticated()) {
+                AuthResponse authResponse = new AuthResponse(
+                        jwtService.generateToken(userLoginDto.getUsername()),
+                        userLoginDto.getUsername()
+                );
+
+                return new ServiceResponse<>("Login successful", authResponse, true);
+            }
+
+        } catch (AuthenticationException exception) {
+            System.out.println(exception.getMessage());
             return new ServiceResponse<>("Invalid email or password", false);
         }
+
+        return new ServiceResponse<>("Authentication failed", false);
     }
 }

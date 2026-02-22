@@ -317,6 +317,15 @@
                 document.getElementById("loginLoadingMsg").style.display = "none";
                 document.getElementById("loginSuccessMsg").style.display="block";
                 document.getElementById("loginSuccessMsg").textContent=response.data.msg;
+                localStorage.setItem(
+                    "user",
+                    JSON.stringify(
+                        {
+                            username: response.data.object.username,
+                            token: response.data.object.token
+                        }
+                    )
+                );
                 setTimeout(() => {
                     window.location.replace("http://localhost:8080/index");
                 }, 1800);

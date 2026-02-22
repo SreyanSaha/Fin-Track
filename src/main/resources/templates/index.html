@@ -362,12 +362,13 @@
         document.getElementById("monthSuccessMsg").style.display="none";
         document.getElementById("monthErrorMsg").style.display="none";
         document.getElementById("monthLoadingMsg").style.display = "block";
-
+        const user = JSON.parse(localStorage.getItem("user"));
         try{
-            const response = await axios.get('http://localhost:8080/FinTrack/YearlyReportController',
+            const response = await axios.get('http://localhost:8080/api/yearly/reports',
             {
                 headers:{
-                "Content-Type": "text/plain"
+                    "Authorization": "Bearer "+user.token,
+                    "Content-Type": "application/json"
                 }
             });
             if(response.status===200 && response.data.status===true){
@@ -389,15 +390,41 @@
             }
         }catch(exception){
             console.log(exception);
-            if (exception.response && exception.response.status === 401) {
-                window.location.href =
-                  "http://localhost:8080/FinTrack/user view/login signup/userLoginSignup.jsp";
-                return;
+            if (exception.status===401 || response.data.status===false) {
+                window.location.replace("http://localhost:8080/login");return;
             }
         }
     }
 
-    initPage();
+    const validateToken = async ()=>{
+        const user = JSON.parse(localStorage.getItem("user"));
+        if(!user) {console.log("Token not found.");window.location.replace("http://localhost:8080/login");return;}
+        else{
+            try{
+                const response = await axios.post('http://localhost:8080/auth/token-health',
+            {
+                "token": user.token,
+                "username": user.username,
+            },{
+                withCredentials: true,
+                headers:{
+                "Content-Type": "application/json"
+                }
+            });
+            if(response.status===200 || response.data.status===true){
+                console.log("Token Validated.");
+                initPage();
+            }
+            }catch(exception){
+                if(exception.status===401 || response.data.status===false){
+                    window.location.replace("http://localhost:8080/login");return;
+                }
+            }
+        }
+        
+    };
+
+    validateToken();
 
     const checkMonthlyInput = ()=>{
         const success = document.getElementById("monthSuccessMsg");
