@@ -1,33 +1,31 @@
 package com.fin.dto;
 
-import java.time.Year;
-
 public class YearlyReportCreationDto {
     private int yReportYear;
-    private short yReportMonth;
+    private int yReportMonth;
     private double yReportMonthTarget;
 
-    public int getyReportYear() {
+    public int getYReportYear() {
         return yReportYear;
     }
 
-    public void setyReportYear(int yReportYear) {
+    public void setYReportYear(int yReportYear) {
         this.yReportYear = yReportYear;
     }
 
-    public short getyReportMonth() {
+    public int getYReportMonth() {
         return yReportMonth;
     }
 
-    public void setyReportMonth(short yReportMonth) {
+    public void setYReportMonth(short yReportMonth) {
         this.yReportMonth = yReportMonth;
     }
 
-    public double getyReportMonthTarget() {
+    public double getYReportMonthTarget() {
         return yReportMonthTarget;
     }
 
-    public void setyReportMonthTarget(double yReportMonthTarget) {
+    public void setYReportMonthTarget(double yReportMonthTarget) {
         this.yReportMonthTarget = yReportMonthTarget;
     }
 }

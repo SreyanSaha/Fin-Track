@@ -436,26 +436,29 @@
             error.style.display = "block";
             error.textContent = "Fields cannot be empty.";
         }else
-            addMonth();
+            addYearlyRecord();
     };
 
-    const addMonth = async ()=>{
+    const addYearlyRecord = async ()=>{
         document.getElementById("monthSuccessMsg").style.display="none";
         document.getElementById("monthErrorMsg").style.display="none";
         document.getElementById("monthLoadingMsg").style.display = "block";
+
+        const user = JSON.parse(localStorage.getItem("user"));
 
         const year = document.getElementById("monthInput").value.substring(0, 4);
         const month = document.getElementById("monthInput").value.substring(5, 7);
 
         try{
-            const response = await axios.post('http://localhost:8080/FinTrack/YearlyReportController',
+            const response = await axios.post('http://localhost:8080/api/yearly/create-report',
             {
-                "yearlyReportYear": year,
-                "yearlyReportMonth": month,
-                "yearlyReportMonthTarget": document.getElementById("targetInput").value,
+                "yReportYear": Number(year),
+                "yReportMonth": Number(month),
+                "yReportMonthTarget": Number(document.getElementById("targetInput").value),
             },{
                 headers:{
-                "Content-Type": "text/plain"
+                    "Authorization": "Bearer "+user.token,
+                    "Content-Type": "application/json"
                 }
             });
             if(response.status===200 && response.data.status===true){
@@ -476,9 +479,7 @@
         }catch(exception){
             console.log(exception);
             if (exception.response && exception.response.status === 401) {
-                window.location.href =
-                  "http://localhost:8080/FinTrack/user view/login signup/userLoginSignup.jsp";
-                return;
+                window.location.replace("http://localhost:8080/login");return;
             }
         }
     }
@@ -488,7 +489,7 @@
       yearMonthList.forEach(ym=>{
         const d=document.createElement("div");
         d.className="month-item";
-        d.textContent=ym.yearlyReportYear+"-"+months[ym.yearlyReportMonth-1];
+        d.textContent=ym.yReportYear+"-"+months[ym.yReportMonth-1];
         d.onclick=()=>selectMonth(ym,d);
         monthList.appendChild(d);
       });
@@ -497,8 +498,8 @@
     function selectMonth(ym,el){
       document.querySelectorAll(".month-item").forEach(i=>i.classList.remove("active"));
       el.classList.add("active");
-      monthTitle.textContent=ym.yearlyReportYear+"-"+months[ym.yearlyReportMonth-1];
-      target.textContent=ym.yearlyReportMonthTarget;
+      monthTitle.textContent=ym.yReportYear+"-"+months[ym.yReportMonth-1];
+      target.textContent=ym.yReportMonthTarget;
       selectedMonth = structuredClone(ym);
       renderRecords();
     }
@@ -526,11 +527,11 @@
     }
 
     const updateStatus = (total)=>{
-        if(total<selectedMonth.yearlyReportMonthTarget){
-            document.getElementById("status").innerHTML='<span class="deficit">'+"Deficit of ₹"+(selectedMonth.yearlyReportMonthTarget-total)+'</span>';
+        if(total<selectedMonth.yReportMonthTarget){
+            document.getElementById("status").innerHTML='<span class="deficit">'+"Deficit of ₹"+(selectedMonth.yReportMonthTarget-total)+'</span>';
         }
-        else if(total>selectedMonth.yearlyReportMonthTarget){
-            document.getElementById("status").innerHTML='<span class="surplus">'+"Surplus of ₹"+(total-selectedMonth.yearlyReportMonthTarget)+'</span>';
+        else if(total>selectedMonth.yReportMonthTarget){
+            document.getElementById("status").innerHTML='<span class="surplus">'+"Surplus of ₹"+(total-selectedMonth.yReportMonthTarget)+'</span>';
         }
         else{
             document.getElementById("status").innerHTML='<span class="surplus">Monthly target met.</span>';
@@ -558,9 +559,9 @@
             const response = await axios.get('http://localhost:8080/FinTrack/MonthlyReportController',
             {
                 params:{
-                    "yearlyReportMonth": selectedMonth.yearlyReportMonth,
-                    "yearlyReportYear": selectedMonth.yearlyReportYear,
-                    "yearlyReportMonthTarget": selectedMonth.yearlyReportMonthTarget,
+                    "yReportMonth": selectedMonth.yReportMonth,
+                    "yReportYear": selectedMonth.yReportYear,
+                    "yReportMonthTarget": selectedMonth.yReportMonthTarget,
                 }
             },{
                 headers:{
@@ -596,11 +597,11 @@
         document.getElementById("recordSuccessMsg").style.display="none";
         document.getElementById("recordErrorMsg").style.display="none";
         document.getElementById("recordLoadingMsg").style.display = "block";
-        console.log(selectedMonth.yearlyReportId);
+        console.log(selectedMonth.yReportId);
         try{
             const response = await axios.post('http://localhost:8080/FinTrack/MonthlyReportController',
             {
-                "yearlyReportId": selectedMonth.yearlyReportId,
+                "yReportId": selectedMonth.yReportId,
                 "monthlyReportDate":document.getElementById("recDate").value,
                 "monthlyReportAmount":document.getElementById("recAmount").value,
                 "monthlyReportNarration":document.getElementById("recNote").value,
@@ -653,14 +654,14 @@
       document.getElementById("recordSuccessMsg").style.display="none";
       document.getElementById("recordErrorMsg").style.display="none";
       document.getElementById("recordLoadingMsg").style.display = "block";
-      console.log(selectedMonth.yearlyReportId);
+      console.log(selectedMonth.yReportId);
       try{
           const response = await axios.put('http://localhost:8080/FinTrack/MonthlyReportController',
           {
               "monthlyReportId": r.monthlyReportId,
               "monthlyReportNarration": document.getElementById("monthlyReportNarrationUpdate"+i).value,
               "monthlyReportAmount": document.getElementById("monthlyReportAmountUpdate"+i).value,
-              "yearlyReportId": r.yearlyReportId,
+              "yReportId": r.yReportId,
               "monthlyReportDate": document.getElementById("monthlyReportDateUpdate"+i).value,
           },{
               headers:{
@@ -692,7 +693,7 @@
     };
 
     function confirmDelete(id, date){
-      if(!selectedMonth) return;
+      if(!selectedMonth || !selectedMonth.yReportId) return;
       openModal("Delete this record of "+date+"?",()=>{
           deleteRecord(id);
           closeModal();
@@ -703,9 +704,9 @@
     }
 
     function confirmRemoveMonth(){
-      if(!selectedMonth) return;
-      openModal("Remove all records of "+selectedMonth.yearlyReportYear+"-"+months[selectedMonth.yearlyReportMonth-1]+"?",()=>{
-        deleteMonth();
+      if(!selectedMonth || !selectedMonth.yReportId) return;
+      openModal("Remove all records of "+selectedMonth.yReportYear+"-"+months[selectedMonth.yReportMonth-1]+"?",()=>{
+        deleteYear();
         recordTable.innerHTML="";
         status.textContent="—";
         closeModal();
@@ -752,21 +753,20 @@
         }
     };
 
-    const deleteMonth = async ()=>{
+    const deleteYear = async ()=>{
         document.getElementById("monthSuccessMsg").style.display="none";
         document.getElementById("monthErrorMsg").style.display="none";
         document.getElementById("monthLoadingMsg").style.display = "block";
-
+        const user = JSON.parse(localStorage.getItem("user"));
         try{
-            const response = await axios.delete('http://localhost:8080/FinTrack/YearlyReportController',
+            const response = await axios.delete('http://localhost:8080/api/yearly/delete-report',
             {
                 params:{
-                    "yearlyReportId": selectedMonth.yearlyReportId,
-                }
-            },{
-                headers:{
-                "Content-Type": "text/plain"
-                }
+                    "yearlyReportId": Number(selectedMonth.yReportId),
+                },headers:{
+                    "Authorization": "Bearer "+user.token,
+                    "Content-Type": "application/json"
+                },
             });
             if(response.status===200 && response.data.status===true){
                 document.getElementById("monthErrorMsg").style.display="none";
@@ -782,9 +782,7 @@
         }catch(exception){
             console.log(exception);
             if (exception.response && exception.response.status === 401) {
-                window.location.href =
-                  "http://localhost:8080/FinTrack/user view/login signup/userLoginSignup.jsp";
-                return;
+                window.location.replace("http://localhost:8080/login");return;
             }
         }
     };

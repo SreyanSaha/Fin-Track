@@ -20,7 +20,7 @@ public class User {
     @Column(nullable = false, name = "userPassword")
     private String userPassword;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<YearlyReports> yearlyReportsList;
 
     public List<YearlyReports> getYearlyReportsList() {

@@ -17,7 +17,7 @@ public class YearlyReports {
     private int yReportYear;
 
     @Column(nullable = false, name = "yReportMonth")
-    private short yReportMonth;
+    private int yReportMonth;
 
     @Column(nullable = false, name = "yReportMonthTarget")
     private double yReportMonthTarget;
@@ -26,38 +26,49 @@ public class YearlyReports {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "yearlyReports", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "yearlyReports", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MonthlyReports> monthlyReportsList;
 
-    public Long getyReportId() {
+    public YearlyReports(Long yReportId, int yReportYear, int yReportMonth,
+                         double yReportMonthTarget, User user, List<MonthlyReports> monthlyReportsList) {
+        this.yReportId = yReportId;
+        this.yReportYear = yReportYear;
+        this.yReportMonth = yReportMonth;
+        this.yReportMonthTarget = yReportMonthTarget;
+        this.user = user;
+        this.monthlyReportsList = monthlyReportsList;
+    }
+    public YearlyReports(){}
+
+    public Long getYReportId() {
         return yReportId;
     }
 
-    public void setyReportId(Long yReportId) {
+    public void setYReportId(Long yReportId) {
         this.yReportId = yReportId;
     }
 
-    public int getyReportYear() {
+    public int getYReportYear() {
         return yReportYear;
     }
 
-    public void setyReportYear(int yReportYear) {
+    public void setYReportYear(int yReportYear) {
         this.yReportYear = yReportYear;
     }
 
-    public short getyReportMonth() {
+    public int getYReportMonth() {
         return yReportMonth;
     }
 
-    public void setyReportMonth(short yReportMonth) {
+    public void setYReportMonth(int yReportMonth) {
         this.yReportMonth = yReportMonth;
     }
 
-    public double getyReportMonthTarget() {
+    public double getYReportMonthTarget() {
         return yReportMonthTarget;
     }
 
-    public void setyReportMonthTarget(double yReportMonthTarget) {
+    public void setYReportMonthTarget(double yReportMonthTarget) {
         this.yReportMonthTarget = yReportMonthTarget;
     }
 

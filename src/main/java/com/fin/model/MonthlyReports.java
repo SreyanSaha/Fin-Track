@@ -26,35 +26,35 @@ public class MonthlyReports {
     @JoinColumn(name = "y_report_id", nullable = false)
     private YearlyReports yearlyReports;
 
-    public UUID getmReportId() {
+    public UUID getMReportId() {
         return mReportId;
     }
 
-    public void setmReportId(UUID mReportId) {
+    public void setMReportId(UUID mReportId) {
         this.mReportId = mReportId;
     }
 
-    public Date getmReportDate() {
+    public Date getMReportDate() {
         return mReportDate;
     }
 
-    public void setmReportDate(Date mReportDate) {
+    public void setMReportDate(Date mReportDate) {
         this.mReportDate = mReportDate;
     }
 
-    public double getmReportAmount() {
+    public double getMReportAmount() {
         return mReportAmount;
     }
 
-    public void setmReportAmount(double mReportAmount) {
+    public void setMReportAmount(double mReportAmount) {
         this.mReportAmount = mReportAmount;
     }
 
-    public String getmReportNarration() {
+    public String getMReportNarration() {
         return mReportNarration;
     }
 
-    public void setmReportNarration(String mReportNarration) {
+    public void setMReportNarration(String mReportNarration) {
         this.mReportNarration = mReportNarration;
     }
 

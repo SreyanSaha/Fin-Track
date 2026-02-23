@@ -3,38 +3,48 @@ package com.fin.dto;
 public class YearlyReportPublicDto {
     private Long yReportId;
     private int yReportYear;
-    private short yReportMonth;
+    private int yReportMonth;
     private double yReportMonthTarget;
 
-    public Long getyReportId() {
+    public YearlyReportPublicDto(Long yReportId, int yReportYear, int yReportMonth, double yReportMonthTarget) {
+        this.yReportId = yReportId;
+        this.yReportYear = yReportYear;
+        this.yReportMonth = yReportMonth;
+        this.yReportMonthTarget = yReportMonthTarget;
+    }
+
+    public YearlyReportPublicDto() {
+    }
+
+    public Long getYReportId() {
         return yReportId;
     }
 
-    public void setyReportId(Long yReportId) {
+    public void setYReportId(Long yReportId) {
         this.yReportId = yReportId;
     }
 
-    public int getyReportYear() {
+    public int getYReportYear() {
         return yReportYear;
     }
 
-    public void setyReportYear(int yReportYear) {
+    public void setYReportYear(int yReportYear) {
         this.yReportYear = yReportYear;
     }
 
-    public short getyReportMonth() {
+    public int getYReportMonth() {
         return yReportMonth;
     }
 
-    public void setyReportMonth(short yReportMonth) {
+    public void setYReportMonth(int yReportMonth) {
         this.yReportMonth = yReportMonth;
     }
 
-    public double getyReportMonthTarget() {
+    public double getYReportMonthTarget() {
         return yReportMonthTarget;
     }
 
-    public void setyReportMonthTarget(double yReportMonthTarget) {
+    public void setYReportMonthTarget(double yReportMonthTarget) {
         this.yReportMonthTarget = yReportMonthTarget;
     }
 }
