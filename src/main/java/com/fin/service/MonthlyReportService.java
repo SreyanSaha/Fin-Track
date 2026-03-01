@@ -1,61 +1,80 @@
 package com.fin.service;
 
+import com.fin.dto.*;
+import com.fin.model.MonthlyReports;
+import com.fin.model.User;
+import com.fin.model.YearlyReports;
 import com.fin.repository.MonthlyReportsRepository;
 import com.fin.repository.UserRepository;
+import com.fin.repository.YearlyReportsRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+@Service
 public class MonthlyReportService {
     private final UserRepository userRepository;
     private final Validation validation;
     private final MonthlyReportsRepository monthlyReportsRepository;
+    private final YearlyReportsRepository yearlyReportsRepository;
 
     @Autowired
-    MonthlyReportService(UserRepository userRepository, Validation validation, MonthlyReportsRepository monthlyReportsRepository){
+    MonthlyReportService(UserRepository userRepository, Validation validation, MonthlyReportsRepository monthlyReportsRepository,
+                         YearlyReportsRepository yearlyReportsRepository){
         this.userRepository=userRepository;
         this.validation=validation;
         this.monthlyReportsRepository=monthlyReportsRepository;
-
+        this.yearlyReportsRepository=yearlyReportsRepository;
     }
 
-//    public ServiceResponse<MonthlyReport> getMonthlyRecordsOfUser(HttpServletRequest request, MonthlyRecordsFetchDto monthlyRecordsFetchDto) {
-//        if(!validation.validateYear(monthlyRecordsFetchDto.getYearlyReportYear()))
-//            return new ServiceResponse<>("Invalid year.", false);
-//        if(!validation.validateMonth(monthlyRecordsFetchDto.getYearlyReportMonth()))
-//            return new ServiceResponse<>("Invalid month.", false);
-//        if(!validation.validateDoubleAmount(Double.toString(monthlyRecordsFetchDto.getYearlyReportMonthTarget())))
-//            return new ServiceResponse<>("Invalid amount.", false);
-//
-//        ClientLogin clientLogin = (ClientLogin)request.getSession().getAttribute("clientLogin");
-//
-//        List<MonthlyReport>list = monthlyReportRepository.getMonthlyRecordsOfUser(monthlyRecordsFetchDto, clientLogin);
-//
-//        if(list.isEmpty())
-//            return new ServiceResponse<MonthlyReport>("No records found.", list, false);
-//        else
-//            return new ServiceResponse<MonthlyReport>("Fetched records.", list, true);
-//    }
-//
-//    public ServiceResponse<MonthlyRecordCreationDto> createMonthlyRecord(HttpServletRequest request,
-//                                                                         MonthlyRecordCreationDto monthlyRecordCreationDto) {
-//        if(!validation.validateDoubleAmount(Double.toString(monthlyRecordCreationDto.getMonthlyReportAmount())))
-//            return new ServiceResponse<>("Invalid amount.", false);
-//        if(!validation.validateDate(String.valueOf(monthlyRecordCreationDto.getMonthlyReportDate())))
-//            return new ServiceResponse<>("Invalid date.", false);
-//
-//        ClientLogin clientLogin = (ClientLogin)request.getSession().getAttribute("clientLogin");
-//        Optional<YearlyReportPublicDto> yearlyReport=yearlyReportRepository.isYearlyRecordPresent(monthlyRecordCreationDto.getYearlyReportId(), clientLogin);
-//        if(yearlyReport.isEmpty())
-//            return new ServiceResponse<>("Selected year is invalid.", false);
-//        if(yearlyReport.get().getYearlyReportYear()!=LocalDate.parse(monthlyRecordCreationDto.getMonthlyReportDate()).getYear() ||
-//                yearlyReport.get().getYearlyReportMonth()!=LocalDate.parse(monthlyRecordCreationDto.getMonthlyReportDate()).getMonthValue())
-//            return new ServiceResponse<>("The selected date does not belong to the specified year and month.", false);
-//
-//        monthlyRecordCreationDto.setMonthlyReportId(String.valueOf(UUID.randomUUID()));
-//
-//        if(monthlyReportRepository.createMonthlyRecord(monthlyRecordCreationDto))
-//            return new ServiceResponse<MonthlyRecordCreationDto>("Record created sucessfully.", monthlyRecordCreationDto, true);
-//        return new ServiceResponse<MonthlyRecordCreationDto>("Failed to create record.", monthlyRecordCreationDto, false);
-//    }
+    public ServiceResponse<MonthlyReportPublicDto> getMonthlyRecordsOfUser(MonthlyReportFetchDto monthlyRecordsFetchDto) {
+        if(!validation.validateYear(monthlyRecordsFetchDto.getYReportYear()))
+            return new ServiceResponse<>("Invalid year.", false);
+        if(!validation.validateMonth(monthlyRecordsFetchDto.getYReportMonth()))
+            return new ServiceResponse<>("Invalid month.", false);
+        if(!validation.validateDoubleAmount(Double.toString(monthlyRecordsFetchDto.getYReportMonthTarget())))
+            return new ServiceResponse<>("Invalid amount.", false);
+
+        User user=userRepository.findByUserName(SecurityContextHolder.getContext().getAuthentication().getName()).get();
+
+        List<MonthlyReportPublicDto> list = monthlyReportsRepository.getMonthlyRecordsOfUser(user.getUserId(), monthlyRecordsFetchDto.getYReportMonth(),
+                                                                                    monthlyRecordsFetchDto.getYReportYear());
+        return list.isEmpty()?
+             new ServiceResponse<MonthlyReportPublicDto>("No records found.", list, false):
+             new ServiceResponse<MonthlyReportPublicDto>("Fetched records.", list, true);
+    }
+
+    @Transactional
+    public ServiceResponse<Boolean> createMonthlyReport(MonthlyReportCreationDto monthlyReportCreationDto) {
+        if(!validation.validateDoubleAmount(Double.toString(monthlyReportCreationDto.getMonthlyReportAmount())))
+            return new ServiceResponse<>("Invalid amount.", false);
+        if(!validation.validateDate(String.valueOf(monthlyReportCreationDto.getMonthlyReportDate())))
+            return new ServiceResponse<>("Invalid date.", false);
+
+        User user=userRepository.findByUserName(SecurityContextHolder.getContext().getAuthentication().getName()).get();
+
+        //Optional<YearlyReportPublicDto> yearlyReport=yearlyReportsRepository.isYearlyRecordPresent(monthlyReportCreationDto.getYearlyReportId(), user.getUserId());
+        Optional<YearlyReports> yearlyReport=yearlyReportsRepository.findById(monthlyReportCreationDto.getYearlyReportId());
+        if(yearlyReport.isEmpty())
+            return new ServiceResponse<>("Selected year is invalid.", false);
+        if(yearlyReport.get().getYReportYear()!=monthlyReportCreationDto.getMonthlyReportDate().getYear() ||
+                yearlyReport.get().getYReportMonth()!=monthlyReportCreationDto.getMonthlyReportDate().getMonthValue())
+            return new ServiceResponse<>("The selected date does not belong to the specified year and month.", false);
+
+        //monthlyReportCreationDto.setMonthlyReportId(String.valueOf(UUID.randomUUID()));
+        MonthlyReports monthlyReports=new MonthlyReports(monthlyReportCreationDto, yearlyReport.get());
+
+        MonthlyReports report = monthlyReportsRepository.save(monthlyReports);
+
+        return report.getMReportId()!=null?
+                new ServiceResponse<Boolean>("Record created successfully.", true):
+                new ServiceResponse<Boolean>("Failed to create record.", false);
+    }
 //
 //    public final ServiceResponse<Boolean> updateMonthlyRecord(HttpServletRequest request,
 //                                                              MonthlyRecordCreationDto monthlyRecordUpdationDto) {

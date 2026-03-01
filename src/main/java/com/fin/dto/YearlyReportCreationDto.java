@@ -5,6 +5,12 @@ public class YearlyReportCreationDto {
     private int yReportMonth;
     private double yReportMonthTarget;
 
+    public YearlyReportCreationDto(int yReportYear, int yReportMonth, double yReportMonthTarget) {
+        this.yReportYear = yReportYear;
+        this.yReportMonth = yReportMonth;
+        this.yReportMonthTarget = yReportMonthTarget;
+    }
+
     public int getYReportYear() {
         return yReportYear;
     }

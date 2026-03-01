@@ -1,7 +1,11 @@
 package com.fin.model;
 
+import com.fin.dto.MonthlyReportCreationDto;
 import jakarta.persistence.*;
 import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.UUID;
 
 @Entity
@@ -14,7 +18,7 @@ public class MonthlyReports {
     private UUID mReportId;
 
     @Column(nullable = false)
-    private Date mReportDate;
+    private LocalDate mReportDate;
 
     @Column(nullable = false)
     private double mReportAmount;
@@ -26,6 +30,16 @@ public class MonthlyReports {
     @JoinColumn(name = "y_report_id", nullable = false)
     private YearlyReports yearlyReports;
 
+    public MonthlyReports(MonthlyReportCreationDto monthlyReportCreationDto, YearlyReports yearlyReports) {
+        this.mReportDate =  monthlyReportCreationDto.getMonthlyReportDate();
+        this.mReportAmount = monthlyReportCreationDto.getMonthlyReportAmount();
+        this.mReportNarration = monthlyReportCreationDto.getMonthlyReportNarration();
+        this.yearlyReports = yearlyReports;
+    }
+
+    public MonthlyReports() {
+    }
+
     public UUID getMReportId() {
         return mReportId;
     }
@@ -34,11 +48,11 @@ public class MonthlyReports {
         this.mReportId = mReportId;
     }
 
-    public Date getMReportDate() {
+    public LocalDate getMReportDate() {
         return mReportDate;
     }
 
-    public void setMReportDate(Date mReportDate) {
+    public void setMReportDate(LocalDate mReportDate) {
         this.mReportDate = mReportDate;
     }
 

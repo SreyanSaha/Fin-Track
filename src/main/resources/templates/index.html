@@ -160,6 +160,14 @@
           border:none;
         }
 
+        .cancel{
+          background:var(--danger);
+          color:white;
+          padding:6px 14px;
+          border-radius:8px;
+          border:none;
+        }
+
         input.table-input{
           width:100%;
           padding:8px;
@@ -287,9 +295,9 @@
         <div class="header">
             <h2 id="monthTitle">Select Month</h2>
             <div class="summary">
-                <div>Status - <span id="status">-</span></div>
-                <div>Target - ₹<span id="target">0</span></div>
-                <div>Collected - ₹<span id="collected">0</span></div>
+                <div>Status : <span id="status">-</span></div>
+                <div>Target : ₹<span id="target">0</span></div>
+                <div>Collected : ₹<span id="collected">0</span></div>
             </div>
         </div>
 
@@ -506,19 +514,40 @@
 
     const renderRecords = async ()=>{
       const recordList = await fetchRecords();
+      if(!recordList || recordList.length===0) return; 
       selectedMonthRecords = [...recordList];
       recordTable.innerHTML="";
       let total=0;
       recordList.forEach((r,i)=>{
-        total+=r.monthlyReportAmount;
+        total+=r.mReportAmount;
         recordTable.innerHTML+=
           '<tr>'+
-            '<td>'+r.monthlyReportDate+'</td>'+
-            '<td>'+r.monthlyReportAmount+'</td>'+
-            '<td>'+r.monthlyReportNarration+'</td>'+
+            '<td>'+r.mReportDate+'</td>'+
+            '<td>'+r.mReportAmount+'</td>'+
+            '<td>'+r.mReportNarration+'</td>'+
             '<td class="actions">'+
               '<button class="edit" onclick="editRow(this,' +i+')">Edit</button>'+
-              '<button class="delete" onclick="confirmDelete(\''+r.monthlyReportId+'\', \''+r.monthlyReportDate+'\')">Delete</button>'+
+              '<button class="delete" onclick="confirmDelete(\''+r.mReportId+'\', \''+r.mReportDate+'\')">Delete</button>'+
+            '</td>'+
+          '</tr>';
+      });
+      collected.textContent=total;
+      updateStatus(total);
+    }
+
+    const re_renderRecords = async ()=>{
+      recordTable.innerHTML="";
+      let total=0;
+      selectedMonthRecords.forEach((r,i)=>{
+        total+=r.mReportAmount;
+        recordTable.innerHTML+=
+          '<tr>'+
+            '<td>'+r.mReportDate+'</td>'+
+            '<td>'+r.mReportAmount+'</td>'+
+            '<td>'+r.mReportNarration+'</td>'+
+            '<td class="actions">'+
+              '<button class="edit" onclick="editRow(this,' +i+')">Edit</button>'+
+              '<button class="delete" onclick="confirmDelete(\''+r.mReportId+'\', \''+r.mReportDate+'\')">Delete</button>'+
             '</td>'+
           '</tr>';
       });
@@ -544,9 +573,10 @@
         const r = selectedMonthRecords[i];
 
         row.innerHTML =
-              '<td><input class="table-input" id="monthlyReportDateUpdate'+i+'" type="date" value="' + r.monthlyReportDate + '"></td>' +
-              '<td><input class="table-input" id="monthlyReportAmountUpdate'+i+'" type="number" value="' + r.monthlyReportAmount + '"></td>' +
-              '<td><input class="table-input" id="monthlyReportNarrationUpdate'+i+'" value="' + r.monthlyReportNarration + '"></td>' +
+              '<td><input class="table-input" id="monthlyReportDateUpdate'+i+'" type="date" value="' + r.mReportDate + '"></td>' +
+              '<td><input class="table-input" id="monthlyReportAmountUpdate'+i+'" type="number" value="' + r.mReportAmount + '"></td>' +
+              '<td><input class="table-input" id="monthlyReportNarrationUpdate'+i+'" value="' + r.mReportNarration + '"></td>' +
+              //'<td><button class="cancel" onclick="renderRecords()">Cancel</button></td>'+
               '<td><button class="save" onclick="saveRow(' + i + ', this)">Save</button></td>';
     }
 
@@ -555,17 +585,19 @@
         document.getElementById("recordErrorMsg").style.display="none";
         document.getElementById("recordLoadingMsg").style.display = "block";
 
+        const user = JSON.parse(localStorage.getItem("user"));
+
         try{
-            const response = await axios.get('http://localhost:8080/FinTrack/MonthlyReportController',
+            const response = await axios.get('http://localhost:8080/api/monthly/reports',
             {
                 params:{
                     "yReportMonth": selectedMonth.yReportMonth,
                     "yReportYear": selectedMonth.yReportYear,
                     "yReportMonthTarget": selectedMonth.yReportMonthTarget,
-                }
-            },{
+                },
                 headers:{
-                "Content-Type": "text/plain"
+                    "Authorization": "Bearer "+user.token,
+                    "Content-Type": "application/json"
                 }
             });
             if(response.status===200 && response.data.status===true){
@@ -586,9 +618,7 @@
         }catch(exception){
             console.log(exception);
             if (exception.response && exception.response.status === 401) {
-                window.location.href =
-                  "http://localhost:8080/FinTrack/user view/login signup/userLoginSignup.jsp";
-                return;
+                window.location.replace("http://localhost:8080/login");return;
             }
         }
     };
@@ -598,16 +628,18 @@
         document.getElementById("recordErrorMsg").style.display="none";
         document.getElementById("recordLoadingMsg").style.display = "block";
         console.log(selectedMonth.yReportId);
+        const user = JSON.parse(localStorage.getItem("user"));
         try{
-            const response = await axios.post('http://localhost:8080/FinTrack/MonthlyReportController',
+            const response = await axios.post('http://localhost:8080/api/monthly/create-report',
             {
-                "yReportId": selectedMonth.yReportId,
+                "yearlyReportId": selectedMonth.yReportId,
                 "monthlyReportDate":document.getElementById("recDate").value,
                 "monthlyReportAmount":document.getElementById("recAmount").value,
                 "monthlyReportNarration":document.getElementById("recNote").value,
             },{
                 headers:{
-                "Content-Type": "text/plain"
+                    "Authorization": "Bearer "+user.token,
+                    "Content-Type": "application/json"
                 }
             });
             if(response.status===200 && response.data.status===true){
@@ -627,9 +659,7 @@
         }catch(exception){
             console.log(exception);
             if (exception.response && exception.response.status === 401) {
-                window.location.href =
-                  "http://localhost:8080/FinTrack/user view/login signup/userLoginSignup.jsp";
-                return;
+                window.location.replace("http://localhost:8080/login");return;
             }
         }
     };
@@ -651,10 +681,24 @@
     const saveRow = async (i)=>{
       if(!isValidRecordUpdate(i))return;
       const r = selectedMonthRecords[i];
+
+      if(selectedMonthRecords[i].mReportDate==document.getElementById("monthlyReportDateUpdate"+i).value && 
+        Number(selectedMonthRecords[i].mReportAmount)==document.getElementById("monthlyReportAmountUpdate"+i).value &&
+        selectedMonthRecords[i].mReportNarration==document.getElementById("monthlyReportNarrationUpdate"+i).value){
+            document.getElementById("recordSuccessMsg").style.display="block";
+            document.getElementById("recordSuccessMsg").textContent="⚠ No changes detected.";
+            setTimeout(() => {
+                re_renderRecords();
+                document.getElementById("recordSuccessMsg").style.display="none";
+            }, 1500);
+            return;
+      }
+
       document.getElementById("recordSuccessMsg").style.display="none";
       document.getElementById("recordErrorMsg").style.display="none";
       document.getElementById("recordLoadingMsg").style.display = "block";
       console.log(selectedMonth.yReportId);
+
       try{
           const response = await axios.put('http://localhost:8080/FinTrack/MonthlyReportController',
           {
