@@ -10,7 +10,7 @@ public class YearlyReports {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "yReportId")
+    @Column(name = "yReportId", nullable = false, unique = true)
     private Long yReportId;
 
     @Column(nullable = false, name = "yReportYear")

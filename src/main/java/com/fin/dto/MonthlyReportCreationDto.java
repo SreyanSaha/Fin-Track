@@ -8,6 +8,14 @@ public class MonthlyReportCreationDto {
     private Long yearlyReportId;
     private LocalDate monthlyReportDate;
 
+    public MonthlyReportCreationDto(String monthlyReportId, String monthlyReportNarration, double monthlyReportAmount, Long yearlyReportId, LocalDate monthlyReportDate) {
+        this.monthlyReportId = monthlyReportId;
+        this.monthlyReportNarration = monthlyReportNarration;
+        this.monthlyReportAmount = monthlyReportAmount;
+        this.yearlyReportId = yearlyReportId;
+        this.monthlyReportDate = monthlyReportDate;
+    }
+
     public String getMonthlyReportId() {
         return monthlyReportId;
     }

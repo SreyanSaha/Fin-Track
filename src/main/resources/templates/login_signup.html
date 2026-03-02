@@ -282,6 +282,37 @@
 </div>
 
 <script>
+
+    const validateToken = async ()=>{
+        const user = JSON.parse(localStorage.getItem("user"));
+        if(!user) {console.log("Token not found.");return;}
+        else{
+            try{
+                const response = await axios.post('http://localhost:8080/auth/token-health',
+            {
+                "token": user.token,
+                "username": user.username,
+            },{
+                withCredentials: true,
+                headers:{
+                "Content-Type": "application/json"
+                }
+            });
+            if(response.status===200 || response.data.status===true){
+                window.location.replace("http://localhost:8080/index");
+            }
+            }catch(exception){
+                if(exception.status===401 || response.data.status===false){
+                    console.log(exception);
+                    return;
+                }
+            }
+        }
+        
+    };
+
+    validateToken();
+
     const checkLoginInputs = ()=>{
         event.preventDefault();
 

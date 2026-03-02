@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -28,19 +29,21 @@ public interface MonthlyReportsRepository extends JpaRepository<MonthlyReports, 
     """)
     List<MonthlyReportPublicDto> getMonthlyRecordsOfUser(@Param("userId") int userId, @Param("yMonth") int yMonth,
                                                          @Param("yYear")  int yYear);
+
+    @Query("""
+    SELECT new com.fin.dto.MonthlyReportPublicDto(
+        m.mReportId,
+        m.mReportDate,
+        m.mReportAmount,
+        m.mReportNarration,
+        y.yReportId
+    )
+    FROM MonthlyReports m
+    JOIN m.yearlyReports y
+    WHERE y.user.userId = :userId
+      AND m.mReportId = :mReportId
+    ORDER BY m.mReportDate DESC
+    """)
+    Optional<MonthlyReportPublicDto> getMonthlyRecordOfUser(@Param("userId") int userId, @Param("mReportId")  UUID mReportId);
 }
-//@Query("""
-//    SELECT new com.fin.dto.MonthlyReportPublicDto(
-//        m.mReportId,
-//        m.mReportDate,
-//        m.mReportAmount,
-//        m.mReportNarration,
-//        y.yReportId
-//    )
-//    FROM MonthlyReports m
-//    JOIN m.yearlyReports y
-//    WHERE y.user.userId = :userId
-//      AND y.yReportYear = :yYear
-//      AND y.yReportMonth = :yMonth
-//    ORDER BY m.mReportDate DESC
-//    """)
+

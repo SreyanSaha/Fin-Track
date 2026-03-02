@@ -14,7 +14,7 @@ public class MonthlyReports {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(updatable = false, nullable = false)
+    @Column(nullable = false, unique = true)
     private UUID mReportId;
 
     @Column(nullable = false)
