@@ -288,7 +288,7 @@
         if(!user) {console.log("Token not found.");return;}
         else{
             try{
-                const response = await axios.post('http://localhost:8080/auth/token-health',
+                const response = await axios.post('/auth/token-health',
             {
                 "token": user.token,
                 "username": user.username,
@@ -299,7 +299,7 @@
                 }
             });
             if(response.status===200 || response.data.status===true){
-                window.location.replace("http://localhost:8080/index");
+                window.location.replace("/index");
             }
             }catch(exception){
                 if(exception.status===401 || response.data.status===false){
@@ -333,7 +333,7 @@
         document.getElementById("loginErrorMsg").style.display="none";
         document.getElementById("loginLoadingMsg").style.display = "block";
         try{
-            const response = await axios.post('http://localhost:8080/auth/login',
+            const response = await axios.post('/auth/login',
             {
                 "username": document.getElementById("loginUser").value,
                 "userPassword": document.getElementById("loginPass").value,
@@ -358,7 +358,7 @@
                     )
                 );
                 setTimeout(() => {
-                    window.location.replace("http://localhost:8080/index");
+                    window.location.replace(" /index");
                 }, 1800);
             }
         }catch(exception){
@@ -401,7 +401,7 @@
         document.getElementById("signupErrorMsgOtp").style.display="none";
         document.getElementById("loadingMsgOtp").style.display = "none";
         try{
-            const response = await axios.post('http://localhost:8080/auth/signup',
+            const response = await axios.post('/auth/signup',
             {
                 "userEmail": document.getElementById("signupEmail").value,
                 "userPassword": document.getElementById("signupPass").value
@@ -434,7 +434,7 @@
         document.getElementById("signupErrorMsgOtp").style.display="none";
         document.getElementById("loadingMsgOtp").style.display = "block";
         try{
-            const response = await axios.post('http://localhost:8080/auth/signup/otp',
+            const response = await axios.post('/auth/signup/otp',
             {
                 "otp": document.getElementById("otpInput").value,
                 "email": document.getElementById("signupEmail").value,
