@@ -265,6 +265,62 @@
         .hidden {
             display: none;
         }
+        /* SETTINGS ICON */
+
+.settings-wrapper{
+  position:relative;
+}
+
+.settings-btn{
+  background:var(--background);
+  border:none;
+  border-radius:12px;
+  padding:8px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.settings-btn:hover{
+  background:#E7E0EC;
+}
+
+.settings-btn svg{
+  width:22px;
+  height:22px;
+  fill:var(--primary);
+}
+
+.settings-menu{
+  position:absolute;
+  right:0;
+  top:40px;
+  background:white;
+  border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.18);
+  padding:10px;
+  min-width:180px;
+  display:none;
+  flex-direction:column;
+  gap:6px;
+  z-index:100;
+}
+
+.settings-menu button{
+  background:none;
+  border:none;
+  text-align:left;
+  padding:10px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.settings-menu button:hover{
+  background:var(--background);
+}
+
     </style>
 </head>
 
@@ -298,6 +354,23 @@
                 <div>Status : <span id="status">-</span></div>
                 <div>Target : ₹<span id="target">0</span></div>
                 <div>Collected : ₹<span id="collected">0</span></div>
+            </div>
+            <div class="settings-wrapper">
+
+                <button class="settings-btn" onclick="toggleSettings()">
+                
+                <svg viewBox="0 0 24 24">
+                <path d="M19.14,12.94a7.43,7.43,0,0,0,.05-.94,7.43,7.43,0,0,0-.05-.94l2.11-1.65a.5.5,0,0,0,.12-.64l-2-3.46a.5.5,0,0,0-.6-.22l-2.49,1a7.28,7.28,0,0,0-1.63-.94l-.38-2.65A.5.5,0,0,0,13.78,2H10.22a.5.5,0,0,0-.49.41L9.35,5.06a7.28,7.28,0,0,0-1.63.94l-2.49-1a.5.5,0,0,0-.6.22l-2,3.46a.5.5,0,0,0,.12.64L4.86,11.06a7.43,7.43,0,0,0-.05.94,7.43,7.43,0,0,0,.05.94L2.75,14.59a.5.5,0,0,0-.12.64l2,3.46a.5.5,0,0,0,.6.22l2.49-1a7.28,7.28,0,0,0,1.63.94l.38,2.65a.5.5,0,0,0,.49.41h3.56a.5.5,0,0,0,.49-.41l.38-2.65a7.28,7.28,0,0,0,1.63-.94l2.49,1a.5.5,0,0,0,.6-.22l2-3.46a.5.5,0,0,0-.12-.64ZM12,15.5A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"/>
+                </svg>
+
+                </button>
+
+                <div class="settings-menu" id="settingsMenu">
+                <button onclick="logout()">Logout</button>
+                <button>Export Monthly Report.xlsx (Coming Soon)</button>
+                <button>Export Yearly Report.xlsx (Coming Soon)</button>
+                </div>
+
             </div>
         </div>
 
@@ -347,6 +420,23 @@
     const months=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
     let selectedMonth={};
     let selectedMonthRecords=[];
+
+    function toggleSettings(){
+        const menu=document.getElementById("settingsMenu");
+        menu.style.display=menu.style.display==="flex"?"none":"flex";
+    }
+
+    window.onclick=function(e){
+        if(!e.target.closest(".settings-wrapper")){
+            document.getElementById("settingsMenu").style.display="none";
+        }
+    }
+
+    function logout(){
+        localStorage.clear();
+        window.location.replace(" /login");return;
+    }
+
 
     const checkRecordInput = ()=>{
         const success = document.getElementById("recordSuccessMsg");

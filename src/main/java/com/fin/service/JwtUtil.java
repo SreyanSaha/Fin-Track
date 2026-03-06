@@ -52,7 +52,6 @@ public class JwtUtil {
             boolean isUsernameValid = username.equals(userDetails.getUsername());
             boolean isTokenNotExpired = !isTokenExpired(token);
             System.out.println("JWT Validation Debug:");
-            System.out.println("Token: " + token);
             System.out.println("Extracted Username: " + username);
             System.out.println("Expected Username: " + userDetails.getUsername());
             System.out.println("Valid username: " + isUsernameValid);
