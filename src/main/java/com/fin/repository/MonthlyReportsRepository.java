@@ -41,6 +41,24 @@ public interface MonthlyReportsRepository extends JpaRepository<MonthlyReports, 
     FROM MonthlyReports m
     JOIN m.yearlyReports y
     WHERE y.user.userId = :userId
+      AND y.yReportYear = :yYear
+      AND y.yReportMonth = :yMonth
+    LIMIT 1
+    """)
+    Optional<MonthlyReportPublicDto> isMonthlyRecordsOfUserPresent(@Param("userId") int userId, @Param("yMonth") int yMonth,
+                                                         @Param("yYear")  int yYear);
+
+    @Query("""
+    SELECT new com.fin.dto.MonthlyReportPublicDto(
+        m.mReportId,
+        m.mReportDate,
+        m.mReportAmount,
+        m.mReportNarration,
+        y.yReportId
+    )
+    FROM MonthlyReports m
+    JOIN m.yearlyReports y
+    WHERE y.user.userId = :userId
       AND m.mReportId = :mReportId
     ORDER BY m.mReportDate DESC
     """)

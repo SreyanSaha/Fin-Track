@@ -321,6 +321,75 @@
   background:var(--background);
 }
 
+/* OVERLAY */
+.responseModal{
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* MODAL BOX */
+.responseModalBox{
+    background: #ffffff;
+    padding: 24px 22px;
+    border-radius: 18px;
+    width: 300px;
+    max-width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    animation: fadeInScale 0.25s ease;
+}
+
+/* TEXT */
+#responseModalText{
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+/* ACTION AREA */
+.responseModalAction{
+    display: flex;
+    justify-content: center;
+}
+
+/* OK BUTTON */
+.responseModalOkBtn{
+    padding: 8px 18px;
+    border: none;
+    border-radius: 10px;
+    background: #6750A4;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.responseModalOkBtn:hover{
+    background: #5a4494;
+}
+
+.responseModalOkBtn:active{
+    transform: scale(0.96);
+}
+
+/* ANIMATION */
+@keyframes fadeInScale{
+    from{
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to{
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
     </style>
 </head>
 
@@ -367,7 +436,7 @@
 
                 <div class="settings-menu" id="settingsMenu">
                 <button onclick="logout()">Logout</button>
-                <button>Export Monthly Report.xlsx (Coming Soon)</button>
+                <button onclick="exportRecords()">Export Monthly Report</button>
                 <button>Export Yearly Report.xlsx (Coming Soon)</button>
                 <button>Mental Maths (Coming Soon)</button>
             </div>
@@ -412,6 +481,15 @@
         <div class="modal-actions">
             <button class="cancel-btn" onclick="closeModal()">Cancel</button>
             <button id="confirmBtn" class="confirm-btn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<div class="responseModal" id="responseModal">
+    <div class="responseModalBox">
+        <div id="responseModalText"></div>
+        <div class="responseModalAction">
+            <button id="responseModalConfirmBtn" class="responseModalOkBtn">OK</button>
         </div>
     </div>
 </div>
@@ -613,7 +691,7 @@
       recordTable.innerHTML="";
       let total=0;
       recordList.forEach((r,i)=>{
-        total+=r.mReportAmount;
+        total+=parseFloat(r.mReportAmount);
         recordTable.innerHTML+=
           '<tr>'+
             '<td>'+r.mReportDate+'</td>'+
@@ -633,7 +711,7 @@
       recordTable.innerHTML="";
       let total=0;
       selectedMonthRecords.forEach((r,i)=>{
-        total+=r.mReportAmount;
+        total+=parseFloat(r.mReportAmount);
         recordTable.innerHTML+=
           '<tr>'+
             '<td>'+r.mReportDate+'</td>'+
@@ -716,6 +794,41 @@
             }
         }
     };
+
+    const exportRecords = async ()=>{
+        document.getElementById("recordSuccessMsg").style.display="none";
+        document.getElementById("recordErrorMsg").style.display="none";
+        if( Object.keys(selectedMonth).length === 0){
+            document.getElementById("recordErrorMsg").style.display = "block";
+            document.getElementById("recordErrorMsg").textContent = "Please choose a month.";
+            return;
+        }
+
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        try{
+            const response = await axios.get(' /api/monthly/export-report',
+            {
+                params:{
+                    "yReportMonth": selectedMonth.yReportMonth,
+                    "yReportYear": selectedMonth.yReportYear,
+                    "yReportMonthTarget": selectedMonth.yReportMonthTarget,
+                },
+                headers:{
+                    "Authorization": "Bearer "+user.token,
+                    "Content-Type": "application/json"
+                }
+            });
+            if(response.status===200){
+                openResponseModal(response.data.msg);
+            }
+        }catch(exception){
+            console.log(exception);
+            if (exception.response && exception.response.status === 401) {
+                window.location.replace(" /login");return;
+            }
+        }
+    }
 
     const createRecord = async ()=>{
         document.getElementById("recordSuccessMsg").style.display="none";
@@ -931,6 +1044,12 @@
       modal.style.display="flex";
     }
     function closeModal(){modal.style.display="none";}
+
+    function openResponseModal(text){
+      responseModalText.textContent=text;
+      responseModalConfirmBtn.onclick=()=>responseModal.style.display="none";
+      responseModal.style.display="flex";
+    }
 </script>
 
 </body>

@@ -4,13 +4,11 @@ import com.fin.dto.*;
 import com.fin.mail.MailText;
 import com.fin.model.User;
 import com.fin.repository.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -128,7 +126,7 @@ public class AuthService {
 
         } catch (AuthenticationException exception) {
             System.out.println(exception.getMessage());
-            return new ServiceResponse<>("Invalid email or password", false);
+            return new ServiceResponse<>("Invalid username or password", false);
         }
 
         return new ServiceResponse<>("Authentication failed", false);

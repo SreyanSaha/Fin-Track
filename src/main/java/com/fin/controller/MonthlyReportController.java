@@ -26,6 +26,12 @@ public class MonthlyReportController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @GetMapping("/export-report")
+    public ResponseEntity<?> exportMonthlyReport(MonthlyReportFetchDto monthlyReportFetchDto){
+        ServiceResponse<MonthlyReportPublicDto> response = monthlyReportService.exportMonthlyRecordOfUser(monthlyReportFetchDto);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     @PostMapping("/create-report")
     public ResponseEntity<?> createMonthlyReport(@RequestBody MonthlyReportCreationDto monthlyReportCreationDto){
         ServiceResponse<Boolean> response = monthlyReportService.createMonthlyReport(monthlyReportCreationDto);

@@ -21,7 +21,7 @@ public final class MailText {
 			FinTrack Team
 	""";
 
-    private final String clientRegistrationMailSubject="Your ByteFilms Account Username";
+    private final String clientRegistrationMailSubject="Your FinTrack Account Username";
     private final String clientRegistrationMail="""
 		Dear User,
 
@@ -41,7 +41,28 @@ public final class MailText {
 			FinTrack Team
 	""";
 
-    public final String getClientOtpMailSubject() {
+	private final String exportReportMonthlyMailSubject = "Your FinTrack Monthly Report - ${month-year}";
+	private final String exportReportMonthlyMail = """
+    	Dear User,
+
+        	Your FinTrack Monthly Report for ${month-year} has been successfully generated.
+
+        	📄 The Excel file containing your report is attached to this email.
+        	You can download and review it at your convenience.
+
+        	If you did not request this report, please contact us immediately.
+
+    	Regards,
+        	FinTrack Team
+    """;
+
+	public String getExportReportMonthlyMailSubject() {
+		return exportReportMonthlyMailSubject;
+	}
+	public String getExportReportMonthlyMail() {
+		return exportReportMonthlyMail;
+	}
+	public final String getClientOtpMailSubject() {
         return clientOtpMailSubject;
     }
     public final String getClientOtpMail() {

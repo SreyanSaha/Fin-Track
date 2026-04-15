@@ -9,6 +9,7 @@ import com.fin.repository.UserRepository;
 import com.fin.repository.YearlyReportsRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -23,31 +24,51 @@ public class MonthlyReportService {
     private final Validation validation;
     private final MonthlyReportsRepository monthlyReportsRepository;
     private final YearlyReportsRepository yearlyReportsRepository;
+    private final ExportReportService exportReportService;
 
     @Autowired
     MonthlyReportService(UserRepository userRepository, Validation validation, MonthlyReportsRepository monthlyReportsRepository,
-                         YearlyReportsRepository yearlyReportsRepository){
+                         YearlyReportsRepository yearlyReportsRepository, ExportReportService exportReportService){
         this.userRepository=userRepository;
         this.validation=validation;
         this.monthlyReportsRepository=monthlyReportsRepository;
         this.yearlyReportsRepository=yearlyReportsRepository;
+        this.exportReportService=exportReportService;
     }
 
-    public ServiceResponse<MonthlyReportPublicDto> getMonthlyRecordsOfUser(MonthlyReportFetchDto monthlyRecordsFetchDto) {
-        if(!validation.validateYear(monthlyRecordsFetchDto.getYReportYear()))
+    public ServiceResponse<MonthlyReportPublicDto> getMonthlyRecordsOfUser(MonthlyReportFetchDto monthlyReportFetchDto) {
+        if(!validation.validateYear(monthlyReportFetchDto.getYReportYear()))
             return new ServiceResponse<>("Invalid year.", false);
-        if(!validation.validateMonth(monthlyRecordsFetchDto.getYReportMonth()))
+        if(!validation.validateMonth(monthlyReportFetchDto.getYReportMonth()))
             return new ServiceResponse<>("Invalid month.", false);
-        if(!validation.validateDoubleAmount(Double.toString(monthlyRecordsFetchDto.getYReportMonthTarget())))
+        if(!validation.validateDoubleAmount(Double.toString(monthlyReportFetchDto.getYReportMonthTarget())))
             return new ServiceResponse<>("Invalid amount.", false);
 
         User user=userRepository.findByUserName(SecurityContextHolder.getContext().getAuthentication().getName()).get();
 
-        List<MonthlyReportPublicDto> list = monthlyReportsRepository.getMonthlyRecordsOfUser(user.getUserId(), monthlyRecordsFetchDto.getYReportMonth(),
-                                                                                    monthlyRecordsFetchDto.getYReportYear());
+        List<MonthlyReportPublicDto> list = monthlyReportsRepository.getMonthlyRecordsOfUser(user.getUserId(), monthlyReportFetchDto.getYReportMonth(),
+                                                                                            monthlyReportFetchDto.getYReportYear());
         return list.isEmpty()?
              new ServiceResponse<>("No records found.", list, false):
              new ServiceResponse<>("Fetched records.", list, true);
+    }
+
+    public ServiceResponse<MonthlyReportPublicDto> exportMonthlyRecordOfUser(MonthlyReportFetchDto monthlyReportFetchDto) {
+        if(!validation.validateYear(monthlyReportFetchDto.getYReportYear()))
+            return new ServiceResponse<>("Invalid year.", false);
+        if(!validation.validateMonth(monthlyReportFetchDto.getYReportMonth()))
+            return new ServiceResponse<>("Invalid month.", false);
+        if(!validation.validateDoubleAmount(Double.toString(monthlyReportFetchDto.getYReportMonthTarget())))
+            return new ServiceResponse<>("Invalid amount.", false);
+
+        User user=userRepository.findByUserName(SecurityContextHolder.getContext().getAuthentication().getName()).get();
+
+        Optional<MonthlyReportPublicDto> record = monthlyReportsRepository.isMonthlyRecordsOfUserPresent(user.getUserId(), monthlyReportFetchDto.getYReportMonth(),
+                monthlyReportFetchDto.getYReportYear());
+
+        if(record.isEmpty()) return new ServiceResponse<>("No records found.",false);
+        exportReportService.exportRecords(monthlyReportFetchDto, user, user.getUserEmail());
+        return new ServiceResponse<>("Your request is being processed. The Excel file will be generated and sent to your registered email once ready.", true);
     }
 
     @Transactional
