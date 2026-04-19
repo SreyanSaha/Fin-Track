@@ -201,6 +201,23 @@
         color: black;
         cursor: pointer;
     }
+    .forgot-wrapper{
+        display:flex;
+        justify-content:center;
+        margin-top:10px;
+    }
+
+    .forgot-link{
+      font-size:13px;
+      color:var(--primary);
+      cursor:pointer;
+      transition:0.2s;
+    }
+
+    .forgot-link:hover{
+      text-decoration:underline;
+      opacity:0.85;
+    }
     </style>
 </head>
 <body>
@@ -233,6 +250,9 @@
         </div>
 
         <button class="btn" onclick="checkLoginInputs(event)">Login</button>
+        <div class="forgot-wrapper">
+            <span class="forgot-link" onclick="goToForgotPassword()">Forgot Password?</span>
+        </div>
     </form>
 
     <!-- Signup -->
@@ -282,6 +302,10 @@
 </div>
 
 <script>
+
+    function goToForgotPassword(){
+        window.location.href=" /forget-password";
+    }
 
     const validateToken = async ()=>{
         const user = JSON.parse(localStorage.getItem("user"));

@@ -51,14 +51,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> clientLogin(@RequestBody UserLoginDto userLoginDto, HttpServletRequest request){
         ServiceResponse response=authService.authenticate(userLoginDto);
-//        ServiceResponse<Boolean> response = authService.loginUser(userLoginDto, request);
+
         if(response.getStatus())return ResponseEntity.status(HttpStatus.OK).body(response);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<?> clientLogout(){
-
-        return ResponseEntity.status(HttpStatus.OK).body("");
     }
 }

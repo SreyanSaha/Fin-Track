@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>FinTrack • Data Migration</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --primary:#6750A4;
+  --background:#F4EFFA;
+  --surface:#fff;
+  --outline:#CAC4D0;
+  --success:#2E7D32;
+  --danger:#B3261E;
+  --shadow:rgba(0,0,0,.14);
+}
+
+*{box-sizing:border-box;font-family:Roboto}
+
+body{
+  margin:0;
+  background:linear-gradient(135deg,#EADDFF,#F6EDFF);
+  padding:14px;
+}
+
+/* LAYOUT */
+.layout{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  gap:16px;
+  max-width:1400px;
+  margin:auto;
+  height:calc(100vh - 28px);
+}
+
+.card{
+  background:var(--surface);
+  border-radius:22px;
+  box-shadow:0 10px 30px var(--shadow);
+  padding:20px;
+}
+
+/* SIDEBAR */
+.sidebar-item{
+  padding:14px;
+  border-radius:14px;
+  background:var(--primary);
+  color:white;
+  font-weight:500;
+}
+
+/* SECTION */
+.section{
+  background:var(--background);
+  padding:18px;
+  border-radius:18px;
+  margin-bottom:20px;
+}
+
+.section h3{
+  margin-top:0;
+}
+
+.note{
+  font-size:13px;
+  margin-bottom:6px;
+  opacity:.8;
+}
+
+.warning{
+  color:var(--danger);
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+/* FILE INPUT */
+input[type="file"]{
+  margin:10px 0 16px 0;
+}
+
+/* OPTIONS CONTAINER */
+.options{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+/* OPTION CARD */
+.option-card{
+  border:1px solid var(--outline);
+  border-radius:14px;
+  padding:14px;
+  background:white;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.option-card:hover{
+  background:#f7f2ff;
+}
+
+.option-card.safe{
+  border:2px solid var(--success);
+}
+
+/* HEADER FIX */
+.option-header{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+}
+
+.option-header input{
+  margin-top:4px;
+}
+
+.option-text{
+  font-size:14px;
+  font-weight:500;
+  line-height:1.4;
+}
+
+.safe-text{
+  color:var(--success);
+}
+
+/* DROPDOWN FIX */
+.dropdown{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px dashed var(--outline);
+  font-size:13px;
+  line-height:1.5;
+  display:none;
+}
+
+.option-card.active .dropdown{
+  display:block;
+}
+
+/* BUTTON */
+button{
+  margin-top:18px;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:var(--primary);
+  color:white;
+  cursor:pointer;
+  width:100%;
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+
+.modal-box{
+  background:white;
+  padding:22px;
+  border-radius:18px;
+  width:320px;
+}
+
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  margin-top:16px;
+}
+
+.cancel-btn{
+  background:#E7E0EC;
+}
+
+.confirm-btn{
+  background:var(--danger);
+  color:white;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="card">
+  <h3>Settings</h3>
+  <div class="sidebar-item">Data Migration</div>
+</div>
+
+<!-- MAIN -->
+<div class="card">
+
+<h2>Data Migration & Restore</h2>
+
+<!-- MONTH -->
+<div class="section">
+<h3>Monthly Data Import</h3>
+
+<p class="note">Upload system-generated Excel file only.</p>
+<p class="warning">⚠ Incorrect format may corrupt data.</p>
+<p class="warning">⚠ Large data overwrite possible.</p>
+
+<input type="file">
+
+<div class="options">
+
+<div class="option-card" onclick="selectOption(this)">
+  <div class="option-header">
+    <input type="radio" name="monthMode">
+    <div class="option-text">Replace everything with this file</div>
+  </div>
+  <div class="dropdown">
+    Deletes all existing records and replaces them completely.<br><br>
+    ⚠ Cannot be undone.
+  </div>
+</div>
+
+<div class="option-card safe" onclick="selectOption(this)">
+  <div class="option-header">
+    <input type="radio" name="monthMode">
+    <div class="option-text safe-text">Add only new records (Recommended)</div>
+  </div>
+  <div class="dropdown">
+    Keeps existing data and adds only new entries.<br><br>
+    ✅ Safest option.
+  </div>
+</div>
+
+<div class="option-card" onclick="selectOption(this)">
+  <div class="option-header">
+    <input type="radio" name="monthMode">
+    <div class="option-text">Insert all records without checking</div>
+  </div>
+  <div class="dropdown">
+    Uploads everything without validation.<br><br>
+    ⚠ May create duplicates.
+  </div>
+</div>
+
+</div>
+
+<button onclick="confirmUpload()">Upload Monthly Data</button>
+</div>
+
+<!-- YEAR -->
+<div class="section">
+<h3>Yearly Data Import</h3>
+
+<p class="note">Upload yearly exported Excel file.</p>
+<p class="warning">⚠ Incorrect format may corrupt data.</p>
+<p class="warning">⚠ Large overwrite possible.</p>
+
+<input type="file">
+
+<div class="options">
+
+<div class="option-card" onclick="selectOption(this)">
+  <div class="option-header">
+    <input type="radio" name="yearMode">
+    <div class="option-text">Replace entire year data</div>
+  </div>
+  <div class="dropdown">
+    Removes all yearly data and replaces it.<br><br>
+    ⚠ Cannot be undone.
+  </div>
+</div>
+
+<div class="option-card safe" onclick="selectOption(this)">
+  <div class="option-header">
+    <input type="radio" name="yearMode">
+    <div class="option-text safe-text">Add only new records (Recommended)</div>
+  </div>
+  <div class="dropdown">
+    Adds only missing records.<br><br>
+    ✅ Safest option.
+  </div>
+</div>
+
+<div class="option-card" onclick="selectOption(this)">
+  <div class="option-header">
+    <input type="radio" name="yearMode">
+    <div class="option-text">Insert all without checking</div>
+  </div>
+  <div class="dropdown">
+    Inserts everything blindly.<br><br>
+    ⚠ May create duplicates.
+  </div>
+</div>
+
+</div>
+
+<button onclick="confirmUpload()">Upload Yearly Data</button>
+</div>
+
+</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div id="modalText"></div>
+    <div class="modal-actions">
+      <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+      <button class="confirm-btn" onclick="upload()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const validateToken = async ()=>{
+    const user = JSON.parse(localStorage.getItem("user"));
+    if(!user) {console.log("Token not found.");window.location.replace(" /login");return;}
+    else{
+        try{
+            const response = await axios.post(' /auth/token-health',
+        {
+            "token": user.token,
+            "username": user.username,
+        },{
+            withCredentials: true,
+            headers:{
+            "Content-Type": "application/json"
+            }
+        });
+        if(response.status===200 || response.data.status===true){
+            console.log("Token Validated.");
+            initPage();
+        }
+        }catch(exception){
+            if(exception.status===401 || response.data.status===false){
+                window.location.replace(" /login");return;
+            }
+        }
+    }
+        
+};
+
+validateToken();
+
+function selectOption(card){
+  let container = card.parentElement;
+  container.querySelectorAll('.option-card').forEach(c=>c.classList.remove('active'));
+  card.classList.add('active');
+  card.querySelector('input').checked = true;
+}
+
+function confirmUpload(){
+  document.getElementById("modalText").innerHTML = `
+  Are you sure?<br><br>
+  This action may overwrite or duplicate data.<br>
+  Cannot be undone.
+  `;
+  document.getElementById("modal").style.display="flex";
+}
+
+function closeModal(){
+  document.getElementById("modal").style.display="none";
+}
+
+function upload(){
+  closeModal();
+  alert("Upload triggered");
+}
+</script>
+
+</body>
+</html>

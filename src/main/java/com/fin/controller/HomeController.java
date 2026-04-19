@@ -15,4 +15,14 @@ public class HomeController {
     public String getLoginSignupPage(){
         return "login_signup.html";
     }
+
+    @GetMapping("/forget-password")
+    public String getForgetPasswordPage(){
+        return "forget_password.html";
+    }
+
+    @GetMapping("/data-migration")
+    public String getDataMigrationPage(){
+        return "data_migration.html";
+    }
 }

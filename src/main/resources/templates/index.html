@@ -438,7 +438,7 @@
                 <button onclick="logout()">Logout</button>
                 <button onclick="exportRecords()">Export Monthly Report</button>
                 <button>Export Yearly Report.xlsx (Coming Soon)</button>
-                <button>Mental Maths (Coming Soon)</button>
+                <button onclick="goToSettings()">Settings</button>
             </div>
 
             </div>
@@ -514,6 +514,10 @@
     function logout(){
         localStorage.clear();
         window.location.replace(" /login");return;
+    }
+
+    const goToSettings = async ()=>{
+        window.location.href=" /data-migration";   
     }
 
 
