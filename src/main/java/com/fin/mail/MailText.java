@@ -56,6 +56,32 @@ public final class MailText {
         	FinTrack Team
     """;
 
+	private final String forgotPasswordOtpMailSubject = "Your OTP for Password Reset";
+	private final String forgotPasswordOtpMail = """
+        Dear User,
+
+            We received a request to reset your account password.
+
+            Your One-Time Password (OTP) is:
+
+            👉 OTP: ${otp}
+
+            This code is valid for the next 1 minute.
+
+            For your security:
+                • Do not share this OTP with anyone
+                • If you did not request a password reset, please ignore this email or contact support immediately
+
+        Regards,
+            FinTrack Team
+        """;
+
+	public String getForgotPasswordOtpMailSubject() {
+		return forgotPasswordOtpMailSubject;
+	}
+	public String getForgotPasswordOtpMail() {
+		return forgotPasswordOtpMail;
+	}
 	public String getExportReportMonthlyMailSubject() {
 		return exportReportMonthlyMailSubject;
 	}

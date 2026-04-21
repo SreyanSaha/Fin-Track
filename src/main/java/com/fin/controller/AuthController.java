@@ -55,4 +55,22 @@ public class AuthController {
         if(response.getStatus())return ResponseEntity.status(HttpStatus.OK).body(response);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
+
+    @PostMapping("/forget-password")
+    public ResponseEntity<?> clientForgetPassword(@RequestBody ForgetPasswordEmailDto forgetPasswordEmailDto){
+
+        ServiceResponse<Boolean> response = authService.sendForgetPasswordOtpMail(forgetPasswordEmailDto.getEmail());
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping("/forget-password/otp")
+    public ResponseEntity<?> clientForgetPasswordOtp(@RequestBody OtpDto otpDto){
+
+//        ServiceResponse<UserPublicDataDto> response = authService.signupUser(otpDto);
+//
+//        if(!response.getStatus()) return ResponseEntity.status(HttpStatus.OK).body(response);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return null;
+    }
 }
