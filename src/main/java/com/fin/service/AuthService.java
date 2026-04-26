@@ -22,8 +22,8 @@ public class AuthService {
     private final EmailService emailService;
     private final ConcurrentHashMap<String, RegistrationOtpDto> otpStorage = new
             ConcurrentHashMap<String, RegistrationOtpDto>();
-    private final ConcurrentHashMap<String, RegistrationOtpDto> forgetPasswordOtpStorage = new
-            ConcurrentHashMap<String, RegistrationOtpDto>();
+    private final ConcurrentHashMap<String, ForgetPasswordOtpDto> forgetPasswordOtpStorage = new
+            ConcurrentHashMap<String, ForgetPasswordOtpDto>();
     private final ConcurrentHashMap<String, User> userStorage = new
             ConcurrentHashMap<String, User>();
     private final ConcurrentHashMap<String, User> forgetPasswordUserStorage = new
@@ -103,7 +103,7 @@ public class AuthService {
 
         forgetPasswordUserStorage.put(user.get().getUserEmail(), user.get());
 
-        RegistrationOtpDto otp=new RegistrationOtpDto();
+        ForgetPasswordOtpDto otp=new ForgetPasswordOtpDto();
 
         forgetPasswordOtpStorage.put(user.get().getUserEmail(), otp);
 
@@ -112,22 +112,6 @@ public class AuthService {
 
         return new ServiceResponse<Boolean>("Password Reset otp email sent.", response);
     }
-
-//    public ServiceResponse<Boolean> loginUser(UserLoginDto userLoginDto, HttpServletRequest request) {
-//        try {
-//            Authentication authentication = authenticationManager.authenticate(
-//                            new UsernamePasswordAuthenticationToken(
-//                                    userLoginDto.getUsername(),
-//                                    userLoginDto.getUserPassword()
-//                            )
-//                    );
-//            SecurityContextHolder.getContext().setAuthentication(authentication);
-//            System.out.println(authentication.isAuthenticated());
-//            return new ServiceResponse<>("Login successful", true);
-//        } catch (AuthenticationException e) {
-//            return new ServiceResponse<>("Invalid email or password", false);
-//        }
-//    }
 
     public ServiceResponse<AuthResponse> authenticate(UserLoginDto userLoginDto) {
         try {
@@ -154,5 +138,44 @@ public class AuthService {
         }
 
         return new ServiceResponse<>("Authentication failed", false);
+    }
+
+    public ServiceResponse<Boolean> verifyOtp(OtpDto otpDto) {
+        if(!forgetPasswordOtpStorage.containsKey(otpDto.getEmail()))
+            return new ServiceResponse<>("Otp invalid.", false);
+
+        ForgetPasswordOtpDto otp=forgetPasswordOtpStorage.get(otpDto.getEmail());
+
+        if(!otp.getGeneratedAt().plusMinutes(1).isAfter(LocalDateTime.now()))
+            return new ServiceResponse<>("Otp expired.", false);
+        if(!otp.getOtp().toString().equals(otpDto.getOtp()))
+            return new ServiceResponse<>("Otp invalid.", false);
+
+        otp.setVerified(true);
+        forgetPasswordOtpStorage.put(otpDto.getEmail(), otp);
+
+        return new ServiceResponse<>("OTP verified successfully. Please enter your new password.", true);
+    }
+
+    public ServiceResponse<Boolean> resetPassword(ResetPasswordDto resetPasswordDto) {
+        if(!validation.validateEmail(resetPasswordDto.getEmail()) ||
+                !forgetPasswordOtpStorage.containsKey(resetPasswordDto.getEmail()) ||
+                !forgetPasswordUserStorage.containsKey(resetPasswordDto.getEmail()))
+            return new ServiceResponse<Boolean>("Invalid email.", false);
+        if(!validation.validatePassword(resetPasswordDto.getPassword()))
+            return new ServiceResponse<Boolean>("Password is invalid. It must be at least 6 characters long and contain letters, numbers, and at least one special character.", false);
+        if(!forgetPasswordOtpStorage.get(resetPasswordDto.getEmail()).isVerified())
+            return new ServiceResponse<Boolean>("Otp not verified.", false);
+
+        User user=forgetPasswordUserStorage.get(resetPasswordDto.getEmail());
+        user.setUserPassword(passwordEncoder.encode(resetPasswordDto.getPassword()));
+        User savedUser=userRepository.save(user);
+
+        forgetPasswordOtpStorage.remove(resetPasswordDto.getEmail());
+        forgetPasswordUserStorage.remove(resetPasswordDto.getEmail());
+
+        return savedUser.getUserEmail()==null?
+                new ServiceResponse<>("Failed to reset password.", false):
+                new ServiceResponse<>("Password reset successful.", true);
     }
 }

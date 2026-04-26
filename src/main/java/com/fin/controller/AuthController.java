@@ -4,8 +4,6 @@ import com.fin.dto.*;
 import com.fin.model.User;
 import com.fin.service.AuthService;
 import com.fin.service.JwtService;
-import com.fin.service.JwtUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,8 +47,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> clientLogin(@RequestBody UserLoginDto userLoginDto, HttpServletRequest request){
-        ServiceResponse response=authService.authenticate(userLoginDto);
+    public ResponseEntity<?> clientLogin(@RequestBody UserLoginDto userLoginDto){
+        ServiceResponse<AuthResponse> response=authService.authenticate(userLoginDto);
 
         if(response.getStatus())return ResponseEntity.status(HttpStatus.OK).body(response);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -67,10 +65,16 @@ public class AuthController {
     @PostMapping("/forget-password/otp")
     public ResponseEntity<?> clientForgetPasswordOtp(@RequestBody OtpDto otpDto){
 
-//        ServiceResponse<UserPublicDataDto> response = authService.signupUser(otpDto);
-//
-//        if(!response.getStatus()) return ResponseEntity.status(HttpStatus.OK).body(response);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        return null;
+        ServiceResponse<Boolean> response = authService.verifyOtp(otpDto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping("/forget-password/reset-password")
+    public ResponseEntity<?> clientResetPasswordOtp(@RequestBody ResetPasswordDto resetPasswordDto){
+
+        ServiceResponse<Boolean> response = authService.resetPassword(resetPasswordDto);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
