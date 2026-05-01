@@ -378,6 +378,19 @@
     transform: scale(0.96);
 }
 
+.row-good{
+  background:#e8f5e9;
+  border-left:5px solid var(--success);
+}
+.row-ok{
+  background:#fff4e5;
+  border-left:5px solid #dd6b00;
+}
+.row-bad{
+  background:#fdecea;
+  border-left:5px solid var(--danger);
+}
+
 /* ANIMATION */
 @keyframes fadeInScale{
     from{
@@ -422,6 +435,7 @@
             <div class="summary">
                 <div>Status : <span id="status">-</span></div>
                 <div>Target : ₹<span id="target">0</span></div>
+                <div>Daily : ₹<span id="daily">0</span></div>
                 <div>Collected : ₹<span id="collected">0</span></div>
             </div>
             <div class="settings-wrapper">
@@ -499,6 +513,7 @@
     const months=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
     let selectedMonth={};
     let selectedMonthRecords=[];
+    let daily;
 
     function toggleSettings(){
         const menu=document.getElementById("settingsMenu");
@@ -681,6 +696,9 @@
       el.classList.add("active");
       monthTitle.textContent=ym.yReportYear+"-"+months[ym.yReportMonth-1];
       target.textContent=ym.yReportMonthTarget;
+      const days=new Date(ym.yReportYear, ym.yReportMonth, 0).getDate();
+      daily=ym.yReportMonthTarget/days;
+      document.getElementById("daily").textContent=daily.toFixed(2);
       selectedMonth = structuredClone(ym);
       renderRecords();
     }
@@ -694,10 +712,14 @@
       selectedMonthRecords = [...recordList];
       recordTable.innerHTML="";
       let total=0;
+      let ratio=0;
       recordList.forEach((r,i)=>{
         total+=parseFloat(r.mReportAmount);
+        if(daily > 0)
+            ratio = parseFloat(r.mReportAmount) / daily;
+        let className=ratio>1?"row-good":ratio<0.9?"row-bad":"row-ok";
         recordTable.innerHTML+=
-          '<tr>'+
+          '<tr class="'+className+'"">'+
             '<td>'+r.mReportDate+'</td>'+
             '<td>'+r.mReportAmount+'</td>'+
             '<td>'+r.mReportNarration+'</td>'+
@@ -714,10 +736,14 @@
     const re_renderRecords = async ()=>{
       recordTable.innerHTML="";
       let total=0;
+      let ratio=0;
       selectedMonthRecords.forEach((r,i)=>{
         total+=parseFloat(r.mReportAmount);
+        if(daily > 0)
+            ratio = parseFloat(r.mReportAmount) / daily;
+        let className=ratio>1?"row-good":ratio<0.9?"row-bad":"row-ok";
         recordTable.innerHTML+=
-          '<tr>'+
+          '<tr class="'+className+'"">'+
             '<td>'+r.mReportDate+'</td>'+
             '<td>'+r.mReportAmount+'</td>'+
             '<td>'+r.mReportNarration+'</td>'+
