@@ -20,13 +20,15 @@ public class YearlyReportService {
     private final YearlyReportsRepository yearlyReportsRepository;
     private final UserRepository userRepository;
     private final Validation validation;
+    private final ExportBackupService exportBackupService;
 
     @Autowired
     YearlyReportService(YearlyReportsRepository yearlyReportsRepository,
-                        Validation validation, UserRepository userRepository){
+                        Validation validation, UserRepository userRepository, ExportBackupService exportBackupService){
         this.yearlyReportsRepository=yearlyReportsRepository;
         this.validation=validation;
         this.userRepository=userRepository;
+        this.exportBackupService=exportBackupService;
     }
 
     @Transactional
@@ -77,6 +79,16 @@ public class YearlyReportService {
         yearlyReportsRepository.delete(report.get());
 
         return new ServiceResponse<Boolean>("Yearly report deleted.",true);
+    }
+
+    public ServiceResponse<Boolean> exportBackup(int year){
+        if(!validation.validateYear(year))
+            return new ServiceResponse<>("Invalid year.", false);
+        User user=userRepository.findByUserName(SecurityContextHolder.getContext().getAuthentication().getName()).get();
+        Optional<Integer> yId = yearlyReportsRepository.isYearlyRecordsOfUserPresent(year, user.getUserId());
+        if(yId.isEmpty()) return new ServiceResponse<>("No records found.",false);
+        exportBackupService.exportYearlyBackup(year, user);
+        return new ServiceResponse<>("Your request is being processed. The CSV backup file will be generated and sent to your registered email once ready.", true);
     }
 
 }

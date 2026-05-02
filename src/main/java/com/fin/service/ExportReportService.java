@@ -18,6 +18,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ExportReportService {
@@ -40,9 +41,11 @@ public class ExportReportService {
 
     @Async
     public void exportRecords(MonthlyReportFetchDto monthlyReportFetchDto, User user, String email){
-        List<MonthlyReportPublicDto> list = monthlyReportsRepository.getMonthlyRecordsOfUser(user.getUserId(), monthlyReportFetchDto.getYReportMonth(),
+        Optional<List<MonthlyReportPublicDto>> optionalList = monthlyReportsRepository.getMonthlyRecordsOfUser(user.getUserId(), monthlyReportFetchDto.getYReportMonth(),
                 monthlyReportFetchDto.getYReportYear());
+        if(optionalList.isEmpty())return;
 
+        List<MonthlyReportPublicDto> list = optionalList.get();
         double totalAmount=0;
         try(Workbook workbook = new XSSFWorkbook()){
             String name=String.format("Monthly Report {%s-%d}", months[monthlyReportFetchDto.getYReportMonth()-1], monthlyReportFetchDto.getYReportYear());

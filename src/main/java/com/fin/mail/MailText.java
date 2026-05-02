@@ -76,6 +76,27 @@ public final class MailText {
             FinTrack Team
         """;
 
+	private final String exportBackupReportYearlyMailSubject = "Your FinTrack Yearly Report Backup - ${year}";
+	private final String exportBackupReportYearlyMail = """
+    Dear User,
+
+        Your FinTrack Yearly Report Backup for ${year} has been successfully generated.
+
+        📄 The CSV file containing your yearly data backup is attached to this email.
+        You can download and store it safely for your records or future reference.
+
+        If you did not request this backup, please contact us immediately.
+
+    Regards,
+        FinTrack Team
+    """;
+
+	public String getExportBackupReportYearlyMailSubject() {
+		return exportBackupReportYearlyMailSubject;
+	}
+	public String getExportBackupReportYearlyMail() {
+		return exportBackupReportYearlyMail;
+	}
 	public String getForgotPasswordOtpMailSubject() {
 		return forgotPasswordOtpMailSubject;
 	}

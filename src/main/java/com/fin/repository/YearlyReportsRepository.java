@@ -29,4 +29,10 @@ public interface YearlyReportsRepository extends JpaRepository<YearlyReports, Lo
     @Query(value = "SELECT y_report_id, y_report_year, y_report_month, y_report_month_target, user_id FROM yearly_reports " +
             "WHERE y_report_id = :yReportId AND user_id = :userId",nativeQuery = true)
     Optional<YearlyReports> findYearlyReport(@Param("yReportId") long yReportId, @Param("userId") int userId);
+
+    @Query(value = "SELECT y_report_id FROM yearly_reports WHERE y_report_year = :year AND user_id = :userId", nativeQuery = true)
+    Optional<List<Integer>> getYearIdsByYearAndUser(@Param("year") int year, @Param("userId") int userId);
+
+    @Query(value = "SELECT y_report_id FROM yearly_reports WHERE y_report_year = :year AND user_id = :userId LIMIT 1", nativeQuery = true)
+    Optional<Integer> isYearlyRecordsOfUserPresent(@Param("year") int year, @Param("userId") int userId);
 }

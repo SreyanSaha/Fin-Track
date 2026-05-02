@@ -1,5 +1,6 @@
 package com.fin.controller;
 
+import com.fin.dto.ExportYearlyBackupDto;
 import com.fin.dto.ServiceResponse;
 import com.fin.dto.YearlyReportCreationDto;
 import com.fin.dto.YearlyReportPublicDto;
@@ -28,7 +29,6 @@ public class yearlyReportController {
 
     @PostMapping("/create-report")
     public ResponseEntity<?> createYearlyReport(@RequestBody YearlyReportCreationDto yearlyReportCreationDto){
-        System.out.println("year:"+yearlyReportCreationDto.getYReportYear()+yearlyReportCreationDto.getYReportMonth());
         ServiceResponse<Boolean> response = yearlyReportService.createYearlyReport(yearlyReportCreationDto);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -36,6 +36,12 @@ public class yearlyReportController {
     @DeleteMapping("/delete-report")
     public ResponseEntity<?> deleteYearlyReport(@RequestParam long yearlyReportId){
         ServiceResponse<Boolean> response = yearlyReportService.deleteYearlyReport(yearlyReportId);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping("/export-backup")
+    public ResponseEntity<?> exportYearlyReportBackup(@RequestBody ExportYearlyBackupDto exportYearlyBackupDto){
+        ServiceResponse<Boolean> response = yearlyReportService.exportBackup(exportYearlyBackupDto.getYear());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

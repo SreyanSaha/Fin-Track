@@ -22,6 +22,16 @@ public class MonthlyReportPublicDto {
         this.yReportId=yReportId;
     }
 
+    public MonthlyReportPublicDto(UUID mReportId,
+                                  LocalDate mReportDate,
+                                  Double mReportAmount,
+                                  String mReportNarration) {
+        this.mReportId = mReportId.toString();
+        this.mReportDate = mReportDate;
+        this.mReportAmount = mReportAmount;
+        this.mReportNarration = mReportNarration;
+    }
+
     public String getMReportId() {
         return mReportId;
     }

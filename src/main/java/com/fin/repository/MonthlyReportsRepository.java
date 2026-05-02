@@ -27,7 +27,7 @@ public interface MonthlyReportsRepository extends JpaRepository<MonthlyReports, 
       AND y.yReportMonth = :yMonth
     ORDER BY m.mReportDate DESC
     """)
-    List<MonthlyReportPublicDto> getMonthlyRecordsOfUser(@Param("userId") int userId, @Param("yMonth") int yMonth,
+    Optional<List<MonthlyReportPublicDto>> getMonthlyRecordsOfUser(@Param("userId") int userId, @Param("yMonth") int yMonth,
                                                          @Param("yYear")  int yYear);
 
     @Query("""
@@ -63,5 +63,18 @@ public interface MonthlyReportsRepository extends JpaRepository<MonthlyReports, 
     ORDER BY m.mReportDate DESC
     """)
     Optional<MonthlyReportPublicDto> getMonthlyRecordOfUser(@Param("userId") int userId, @Param("mReportId")  UUID mReportId);
+
+    @Query("""
+    SELECT new com.fin.dto.MonthlyReportPublicDto(
+        m.mReportId,
+        m.mReportDate,
+        m.mReportAmount,
+        m.mReportNarration
+    )
+    FROM MonthlyReports m WHERE
+      m.yearlyReports.yReportId = :yReportId
+    ORDER BY m.mReportDate DESC
+    """)
+    Optional<List<MonthlyReportPublicDto>> getMonthlyRecordByYearlyReportId(@Param("yReportId") int yReportId);
 }
 

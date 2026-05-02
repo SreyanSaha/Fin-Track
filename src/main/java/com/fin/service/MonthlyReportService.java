@@ -46,11 +46,11 @@ public class MonthlyReportService {
 
         User user=userRepository.findByUserName(SecurityContextHolder.getContext().getAuthentication().getName()).get();
 
-        List<MonthlyReportPublicDto> list = monthlyReportsRepository.getMonthlyRecordsOfUser(user.getUserId(), monthlyReportFetchDto.getYReportMonth(),
+        Optional<List<MonthlyReportPublicDto>> list = monthlyReportsRepository.getMonthlyRecordsOfUser(user.getUserId(), monthlyReportFetchDto.getYReportMonth(),
                                                                                             monthlyReportFetchDto.getYReportYear());
         return list.isEmpty()?
-             new ServiceResponse<>("No records found.", list, false):
-             new ServiceResponse<>("Fetched records.", list, true);
+             new ServiceResponse<>("No records found.", list.get(), false):
+             new ServiceResponse<>("Fetched records.", list.get(), true);
     }
 
     public ServiceResponse<MonthlyReportPublicDto> exportMonthlyRecordOfUser(MonthlyReportFetchDto monthlyReportFetchDto) {
