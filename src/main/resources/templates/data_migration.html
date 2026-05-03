@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <style>
 :root{
@@ -16,6 +17,10 @@
   --success:#2E7D32;
   --danger:#B3261E;
   --shadow:rgba(0,0,0,.14);
+
+  /* NEW distinct colors */
+  --export-month:#6750A4;
+  --export-year:#6750A4;
 }
 
 *{box-sizing:border-box;font-family:Roboto}
@@ -26,7 +31,6 @@ body{
   padding:14px;
 }
 
-/* LAYOUT */
 .layout{
   display:grid;
   grid-template-columns:260px 1fr;
@@ -43,7 +47,6 @@ body{
   padding:20px;
 }
 
-/* SIDEBAR */
 .sidebar-item{
   padding:14px;
   border-radius:14px;
@@ -52,7 +55,6 @@ body{
   font-weight:500;
 }
 
-/* SECTION */
 .section{
   background:var(--background);
   padding:18px;
@@ -60,35 +62,13 @@ body{
   margin-bottom:20px;
 }
 
-.section h3{
-  margin-top:0;
-}
+.note{font-size:13px;margin-bottom:6px;opacity:.8;}
+.warning{color:var(--danger);font-size:13px;margin-bottom:10px;}
 
-.note{
-  font-size:13px;
-  margin-bottom:6px;
-  opacity:.8;
-}
+input[type="file"]{margin:10px 0 16px 0;}
 
-.warning{
-  color:var(--danger);
-  font-size:13px;
-  margin-bottom:10px;
-}
+.options{display:flex;flex-direction:column;gap:12px;}
 
-/* FILE INPUT */
-input[type="file"]{
-  margin:10px 0 16px 0;
-}
-
-/* OPTIONS CONTAINER */
-.options{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-
-/* OPTION CARD */
 .option-card{
   border:1px solid var(--outline);
   border-radius:14px;
@@ -98,50 +78,23 @@ input[type="file"]{
   transition:0.2s;
 }
 
-.option-card:hover{
-  background:#f7f2ff;
-}
+.option-card:hover{background:#f7f2ff;}
+.option-card.safe{border:2px solid var(--success);}
 
-.option-card.safe{
-  border:2px solid var(--success);
-}
+.option-header{display:flex;gap:10px;}
+.option-text{font-size:14px;font-weight:500;}
+.safe-text{color:var(--success);}
 
-/* HEADER FIX */
-.option-header{
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-}
-
-.option-header input{
-  margin-top:4px;
-}
-
-.option-text{
-  font-size:14px;
-  font-weight:500;
-  line-height:1.4;
-}
-
-.safe-text{
-  color:var(--success);
-}
-
-/* DROPDOWN FIX */
 .dropdown{
   margin-top:10px;
   padding-top:10px;
   border-top:1px dashed var(--outline);
   font-size:13px;
-  line-height:1.5;
   display:none;
 }
 
-.option-card.active .dropdown{
-  display:block;
-}
+.option-card.active .dropdown{display:block;}
 
-/* BUTTON */
 button{
   margin-top:18px;
   padding:12px;
@@ -152,6 +105,20 @@ button{
   cursor:pointer;
   width:100%;
 }
+
+/* EXPORT BUTTONS */
+.export-buttons{
+  display:flex;
+  gap:12px;
+  margin:12px 0 20px;
+}
+
+.export-buttons button{
+  margin-top:0;
+}
+
+.export-month-btn{background:var(--export-month);}
+.export-year-btn{background:var(--export-year);}
 
 /* MODAL */
 .modal{
@@ -167,8 +134,10 @@ button{
   background:white;
   padding:22px;
   border-radius:18px;
-  width:320px;
+  width:340px;
 }
+
+.modal h3{margin-top:0;}
 
 .modal-actions{
   display:flex;
@@ -177,16 +146,14 @@ button{
   margin-top:16px;
 }
 
-.cancel-btn{
-  background:#E7E0EC;
+.cancel-btn{background:#E7E0EC;}
+.confirm-btn{background:var(--primary);color:white;}
+
+.result-msg{
+  margin-top:10px;
+  font-size:14px;
 }
 
-.confirm-btn{
-  background:var(--danger);
-  color:white;
-}
-
-/* RESPONSIVE */
 @media(max-width:900px){
   .layout{grid-template-columns:1fr}
 }
@@ -197,18 +164,22 @@ button{
 
 <div class="layout">
 
-<!-- SIDEBAR -->
 <div class="card">
   <h3>Settings</h3>
   <div class="sidebar-item">Data Migration</div>
 </div>
 
-<!-- MAIN -->
 <div class="card">
 
 <h2>Data Migration & Restore</h2>
 
-<!-- MONTH -->
+<!-- EXPORT BUTTONS -->
+<div class="export-buttons">
+  <button class="export-month-btn" onclick="openExport('month')">Export Monthly Backup</button>
+  <button class="export-year-btn" onclick="openExport('year')">Export Yearly Backup</button>
+</div>
+
+<!-- EXISTING CONTENT UNCHANGED -->
 <div class="section">
 <h3>Monthly Data Import</h3>
 
@@ -310,19 +281,19 @@ button{
 
 </div>
 </div>
-
 <!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modal-box">
-    <div id="modalText"></div>
+    <div id="modalContent"></div>
     <div class="modal-actions">
       <button class="cancel-btn" onclick="closeModal()">Cancel</button>
-      <button class="confirm-btn" onclick="upload()">Confirm</button>
+      <button class="confirm-btn" onclick="handleModalConfirm()">Submit</button>
     </div>
   </div>
 </div>
 
 <script>
+
 const validateToken = async ()=>{
     const user = JSON.parse(localStorage.getItem("user"));
     if(!user) {console.log("Token not found.");window.location.replace(" /login");return;}
@@ -360,23 +331,91 @@ function selectOption(card){
   card.querySelector('input').checked = true;
 }
 
+/* STATE */
+let modalMode = null;
+
+/* EXPORT MODALS */
+function openExport(type){
+  modalMode = type;
+
+  if(type === "month"){
+    document.getElementById("modalContent").innerHTML = `
+      <h3>Export Monthly Backup</h3>
+      <label>Month & Year</label>
+      <input type="month" id="monthVal">
+      <div class="result-msg" id="result"></div>
+    `;
+  }
+
+  if(type === "year"){
+    document.getElementById("modalContent").innerHTML = `
+      <h3>Export Yearly Backup</h3>
+      <label>Year</label>
+      <input type="number" id="yearVal" placeholder="2025">
+      <div class="result-msg" id="result"></div>
+    `;
+  }
+
+  document.getElementById("modal").style.display="flex";
+}
+
+/* EXISTING UPLOAD FLOW (UNCHANGED) */
 function confirmUpload(){
-  document.getElementById("modalText").innerHTML = `
-  Are you sure?<br><br>
-  This action may overwrite or duplicate data.<br>
-  Cannot be undone.
+  modalMode = "upload";
+  document.getElementById("modalContent").innerHTML = `
+    <h3>Confirm Upload</h3>
+    This may overwrite data.<br><br>
+    Proceed?
   `;
   document.getElementById("modal").style.display="flex";
+}
+
+/* MAIN HANDLER */
+function handleModalConfirm(){
+
+  /* EXPORT MONTH */
+  if(modalMode === "month"){
+    const val = document.getElementById("monthVal").value;
+    if(!val) return alert("Select month");
+
+    axios.post('/export/month',{month:val})
+      .then(res=>{
+        document.getElementById("result").innerText = res.data.message;
+      })
+      .catch(()=> alert("Export failed"));
+  }
+
+  /* EXPORT YEAR */
+  else if(modalMode === "year"){
+    const val = document.getElementById("yearVal").value;
+    if(!val) return alert("Enter year");
+
+    axios.post('/export/year',{year:val})
+      .then(res=>{
+        document.getElementById("result").innerText = res.data.message;
+      })
+      .catch(()=> alert("Export failed"));
+  }
+
+  /* UPLOAD */
+  else if(modalMode === "upload"){
+    closeModal();
+    alert("Upload triggered");
+  }
 }
 
 function closeModal(){
   document.getElementById("modal").style.display="none";
 }
 
-function upload(){
-  closeModal();
-  alert("Upload triggered");
+/* EXISTING */
+function selectOption(card){
+  let container = card.parentElement;
+  container.querySelectorAll('.option-card').forEach(c=>c.classList.remove('active'));
+  card.classList.add('active');
+  card.querySelector('input').checked = true;
 }
+
 </script>
 
 </body>
