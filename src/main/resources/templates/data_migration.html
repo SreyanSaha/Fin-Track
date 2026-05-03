@@ -157,7 +157,47 @@ button{
 @media(max-width:900px){
   .layout{grid-template-columns:1fr}
 }
+.response-box {
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    .msg {
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-size: 14px;
+        display: none;    /* Hidden by default */
+        animation: fadeIn 0.4s ease;
+    }
+
+    /* SUCCESS MESSAGE */
+    .success {
+        background: #d4f8d4;
+        color: #166f16;
+        border-left: 4px solid #1ea21e;
+    }
+
+    /* ERROR MESSAGE */
+    .error {
+        background: #ffe0e0;
+        color: #a10000;
+        border-left: 4px solid #d10000;
+    }
+
+    .loading {
+        background: #fff3cd;              /* light yellow background */
+        color: #856404;                   /* dark yellow-brown text */
+        border-left: 4px solid #ff7a00;   /* orange theme border */
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-size: 14px;
+        display: none;                    /* hidden until needed */
+    }
+    .hidden {
+        display: none;
+    }
 </style>
+
 </head>
 
 <body>
@@ -284,6 +324,11 @@ button{
 <!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modal-box">
+    <div class="response-box">
+    <p id="SuccessMsg" class="msg success"></p>
+    <p id="ErrorMsg" class="msg error"></p>
+    <p id="LoadingMsg" class="msg loading">Processing request…</p>
+    </div>
     <div id="modalContent"></div>
     <div class="modal-actions">
       <button class="cancel-btn" onclick="closeModal()">Cancel</button>
@@ -295,34 +340,33 @@ button{
 <script>
 
 const validateToken = async ()=>{
-    const user = JSON.parse(localStorage.getItem("user"));
-    if(!user) {console.log("Token not found.");window.location.replace(" /login");return;}
-    else{
-        try{
-            const response = await axios.post(' /auth/token-health',
-        {
-            "token": user.token,
-            "username": user.username,
-        },{
-            withCredentials: true,
-            headers:{
-            "Content-Type": "application/json"
+        const user = JSON.parse(localStorage.getItem("user"));
+        if(!user) {console.log("Token not found.");window.location.replace(" /login");return;}
+        else{
+            try{
+                const response = await axios.post(' /auth/token-health',
+            {
+                "token": user.token,
+                "username": user.username,
+            },{
+                withCredentials: true,
+                headers:{
+                "Content-Type": "application/json"
+                }
+            });
+            if(response.status===200 || response.data.status===true){
+                console.log("Token Validated.");
             }
-        });
-        if(response.status===200 || response.data.status===true){
-            console.log("Token Validated.");
-            initPage();
-        }
-        }catch(exception){
-            if(exception.status===401 || response.data.status===false){
-                window.location.replace(" /login");return;
+            }catch(exception){
+                if(exception.status===401 || response.data.status===false){
+                    window.location.replace(" /login");return;
+                }
             }
         }
-    }
         
-};
+    };
 
-validateToken();
+    validateToken();
 
 function selectOption(card){
   let container = card.parentElement;
@@ -330,6 +374,44 @@ function selectOption(card){
   card.classList.add('active');
   card.querySelector('input').checked = true;
 }
+
+const exportYearlyBackup = async (year)=>{
+  document.getElementById("SuccessMsg").style.display="none";
+  document.getElementById("ErrorMsg").style.display="none";
+  document.getElementById("LoadingMsg").style.display="block";
+  const user = JSON.parse(localStorage.getItem("user"));
+  try{
+    const response = await axios.post('/api/yearly/export-backup',
+    {
+        "year":year
+    },{
+        headers:{
+            "Authorization": "Bearer "+user.token,
+            "Content-Type": "application/json"
+        }
+    });
+    if(response.status===200 && response.data.status===true){
+        document.getElementById("SuccessMsg").style.display="block";
+        document.getElementById("ErrorMsg").style.display="none";
+        document.getElementById("LoadingMsg").style.display="none";
+        document.getElementById("SuccessMsg").textContent=response.data.msg;
+        setTimeout(() => {
+            document.getElementById("SuccessMsg").style.display="none";
+            closeModal();
+        }, 2000);
+    }else if(response.status===200 && response.data.status===false){
+        document.getElementById("SuccessMsg").style.display="none";
+        document.getElementById("ErrorMsg").style.display="block";
+        document.getElementById("LoadingMsg").style.display="none";
+        document.getElementById("ErrorMsg").textContent=response.data.msg;
+    }
+  }catch(exception){
+    console.log(exception);
+    if (exception.response && exception.response.status === 401) {
+        window.location.replace(" /login");return;
+    }
+  }
+};
 
 /* STATE */
 let modalMode = null;
@@ -376,25 +458,23 @@ function handleModalConfirm(){
   /* EXPORT MONTH */
   if(modalMode === "month"){
     const val = document.getElementById("monthVal").value;
-    if(!val) return alert("Select month");
-
-    axios.post('/export/month',{month:val})
-      .then(res=>{
-        document.getElementById("result").innerText = res.data.message;
-      })
-      .catch(()=> alert("Export failed"));
+    
   }
 
   /* EXPORT YEAR */
   else if(modalMode === "year"){
     const val = document.getElementById("yearVal").value;
-    if(!val) return alert("Enter year");
-
-    axios.post('/export/year',{year:val})
-      .then(res=>{
-        document.getElementById("result").innerText = res.data.message;
-      })
-      .catch(()=> alert("Export failed"));
+    if(val===""){
+      document.getElementById("SuccessMsg").style.display="none";
+      document.getElementById("ErrorMsg").style.display="block";
+      document.getElementById("LoadingMsg").style.display="none";
+      document.getElementById("ErrorMsg").textContent="Field cannot be empty.";
+      setTimeout(()=>{
+        document.getElementById("ErrorMsg").style.display="none";
+      }, 1800);
+      return;
+    }
+    exportYearlyBackup(val);
   }
 
   /* UPLOAD */
