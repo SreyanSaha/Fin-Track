@@ -23,7 +23,8 @@ public class ExportBackupService {
     private final MailText mailText=new MailText();
 
     @Autowired
-    public ExportBackupService(JavaMailSender javaMailSender, MonthlyReportsRepository monthlyReportsRepository, YearlyReportsRepository yearlyReportsRepository){
+    public ExportBackupService(JavaMailSender javaMailSender, MonthlyReportsRepository monthlyReportsRepository,
+                               YearlyReportsRepository yearlyReportsRepository){
         this.javaMailSender=javaMailSender;
         this.monthlyReportsRepository=monthlyReportsRepository;
         this.yearlyReportsRepository=yearlyReportsRepository;
@@ -31,21 +32,16 @@ public class ExportBackupService {
 
     @Async
     public void exportYearlyBackup(int year, User user){
-        Optional<List<Integer>> optionalYearIds = yearlyReportsRepository.getYearIdsByYearAndUser(year, user.getUserId());
-        if(optionalYearIds.isEmpty())return;
-        List<Integer> yearIds = optionalYearIds.get();
+        Optional<List<MonthlyReportPublicDto>> optionalList = monthlyReportsRepository.getMonthlyRecordByYearlyReportId(user.getUserId(), year);
+        if(optionalList.isEmpty())return;
+        List<MonthlyReportPublicDto> monthlyReportList = optionalList.get();
         StringBuilder csvBuilder=new StringBuilder();
-        for(int id:yearIds){
-            Optional<List<MonthlyReportPublicDto>> optionalList = monthlyReportsRepository.getMonthlyRecordByYearlyReportId(id);
-            if(optionalList.isEmpty())continue;
-            for(MonthlyReportPublicDto dto:optionalList.get()){
-                csvBuilder.append(dto.getMReportId()).append(",")
-                        .append(dto.getMReportDate()).append(",")
-                        .append(dto.getMReportAmount()).append(",")
-                        .append(dto.getMReportNarration()).append(",")
-                        .append(dto.getYReportId()).append("\n");
-            }
-            csvBuilder.append("\n");
+        for(MonthlyReportPublicDto dto:optionalList.get()){
+            csvBuilder.append(dto.getMReportId()).append(",")
+                    .append(dto.getMReportDate()).append(",")
+                    .append(dto.getMReportAmount()).append(",")
+                    .append(dto.getMReportNarration()).append(",")
+                    .append(dto.getYReportId()).append("\n");
         }
         String name="Backup of "+year+".csv";
         sendFileEmail(

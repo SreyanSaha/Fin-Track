@@ -71,10 +71,12 @@ public interface MonthlyReportsRepository extends JpaRepository<MonthlyReports, 
         m.mReportAmount,
         m.mReportNarration
     )
-    FROM MonthlyReports m WHERE
-      m.yearlyReports.yReportId = :yReportId
+    FROM MonthlyReports m
+    JOIN m.yearlyReports y
+    WHERE y.user.userId = :userId
+      AND y.yReportYear = :year
     ORDER BY m.mReportDate DESC
     """)
-    Optional<List<MonthlyReportPublicDto>> getMonthlyRecordByYearlyReportId(@Param("yReportId") int yReportId);
+    Optional<List<MonthlyReportPublicDto>> getMonthlyRecordByYearlyReportId(@Param("userId") int userId, @Param("year") int year);
 }
 
