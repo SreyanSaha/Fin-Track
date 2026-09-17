@@ -25,15 +25,17 @@ public class MonthlyReportService {
     private final MonthlyReportsRepository monthlyReportsRepository;
     private final YearlyReportsRepository yearlyReportsRepository;
     private final ExportReportService exportReportService;
+    private final RequestStateManager requestStateManager;
 
     @Autowired
     MonthlyReportService(UserRepository userRepository, Validation validation, MonthlyReportsRepository monthlyReportsRepository,
-                         YearlyReportsRepository yearlyReportsRepository, ExportReportService exportReportService){
+                         YearlyReportsRepository yearlyReportsRepository, ExportReportService exportReportService, RequestStateManager requestStateManager){
         this.userRepository=userRepository;
         this.validation=validation;
         this.monthlyReportsRepository=monthlyReportsRepository;
         this.yearlyReportsRepository=yearlyReportsRepository;
         this.exportReportService=exportReportService;
+        this.requestStateManager=requestStateManager;
     }
 
     public ServiceResponse<MonthlyReportPublicDto> getMonthlyRecordsOfUser(MonthlyReportFetchDto monthlyReportFetchDto) {

@@ -68,7 +68,7 @@ public class AuthService {
     public ServiceResponse<UserPublicDataDto> signupUser(OtpDto otpDto) {
         RegistrationOtpDto otp=otpStorage.get(otpDto.getEmail());
 
-        if(!otp.getGeneratedAt().plusMinutes(1).isAfter(LocalDateTime.now()))
+        if(!otp.getGeneratedAt().plusMinutes(2).isAfter(LocalDateTime.now()))
             return new ServiceResponse<>("Otp expired.", false);
         if(!otp.getOtp().toString().equals(otpDto.getOtp()))
             return new ServiceResponse<>("Otp invalid.", false);
@@ -146,7 +146,7 @@ public class AuthService {
 
         ForgetPasswordOtpDto otp=forgetPasswordOtpStorage.get(otpDto.getEmail());
 
-        if(!otp.getGeneratedAt().plusMinutes(1).isAfter(LocalDateTime.now()))
+        if(!otp.getGeneratedAt().plusMinutes(2).isAfter(LocalDateTime.now()))
             return new ServiceResponse<>("Otp expired.", false);
         if(!otp.getOtp().toString().equals(otpDto.getOtp()))
             return new ServiceResponse<>("Otp invalid.", false);
