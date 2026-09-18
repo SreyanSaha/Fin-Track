@@ -8,6 +8,11 @@ public class ServiceResponse <Type>{
     private List<Type> objects;
     private boolean status;
 
+    public ServiceResponse(String msg, Type object) {
+        this.msg=msg;
+        this.object=object;
+    }
+
     public boolean getStatus() {
         return this.status;
     }

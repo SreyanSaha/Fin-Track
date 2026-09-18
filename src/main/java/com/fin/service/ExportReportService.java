@@ -32,11 +32,13 @@ public class ExportReportService {
     private final JavaMailSender javaMailSender;
     private final MonthlyReportsRepository monthlyReportsRepository;
     private final MailText mailText=new MailText();
+    private final RequestStateManager requestStateManager;
 
     @Autowired
-    public ExportReportService(JavaMailSender javaMailSender, MonthlyReportsRepository monthlyReportsRepository){
+    public ExportReportService(JavaMailSender javaMailSender, MonthlyReportsRepository monthlyReportsRepository, RequestStateManager requestStateManager){
         this.javaMailSender=javaMailSender;
         this.monthlyReportsRepository=monthlyReportsRepository;
+        this.requestStateManager=requestStateManager;
     }
 
     @Async
@@ -46,6 +48,7 @@ public class ExportReportService {
         if(optionalList.isEmpty())return;
 
         List<MonthlyReportPublicDto> list = optionalList.get();
+        int size=list.size();
         double totalAmount=0;
         try(Workbook workbook = new XSSFWorkbook()){
             String name=String.format("Monthly Report {%s-%d}", months[monthlyReportFetchDto.getYReportMonth()-1], monthlyReportFetchDto.getYReportYear());
@@ -60,6 +63,7 @@ public class ExportReportService {
                 dataRow.createCell(1).setCellValue(list.get(i-1).getMReportAmount());
                 dataRow.createCell(2).setCellValue(list.get(i-1).getMReportNarration());
                 totalAmount+=list.get(i-1).getMReportAmount();
+                requestStateManager.setExportingMonthlyDataState(user, (i < size), (i*100)/size);
             }
             Row lastRow=sheet.createRow(list.size()+2);
             String status=(totalAmount<monthlyReportFetchDto.getYReportMonthTarget())?"Deficit of ₹"+(monthlyReportFetchDto.getYReportMonthTarget()-totalAmount):
