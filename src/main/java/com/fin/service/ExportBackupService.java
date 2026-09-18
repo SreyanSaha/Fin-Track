@@ -21,20 +21,23 @@ public class ExportBackupService {
     private final MonthlyReportsRepository monthlyReportsRepository;
     private final YearlyReportsRepository yearlyReportsRepository;
     private final MailText mailText=new MailText();
+    private final RequestStateManager requestStateManager;
 
     @Autowired
     public ExportBackupService(JavaMailSender javaMailSender, MonthlyReportsRepository monthlyReportsRepository,
-                               YearlyReportsRepository yearlyReportsRepository){
+                               YearlyReportsRepository yearlyReportsRepository, RequestStateManager requestStateManager){
         this.javaMailSender=javaMailSender;
         this.monthlyReportsRepository=monthlyReportsRepository;
         this.yearlyReportsRepository=yearlyReportsRepository;
+        this.requestStateManager=requestStateManager;
     }
 
     @Async
     public void exportYearlyBackup(int year, User user){
-        Optional<List<MonthlyReportPublicDto>> optionalList = monthlyReportsRepository.getMonthlyRecordByYearlyReportId(user.getUserId(), year);
+        Optional<List<MonthlyReportPublicDto>> optionalList = yearlyReportsRepository.getYearlyRecordBackup(user.getUserId(), year);
         if(optionalList.isEmpty())return;
         List<MonthlyReportPublicDto> monthlyReportList = optionalList.get();
+        int size=monthlyReportList.size(), i=0;
         StringBuilder csvBuilder=new StringBuilder();
         for(MonthlyReportPublicDto dto:optionalList.get()){
             csvBuilder.append(dto.getMReportId()).append(",")
@@ -42,6 +45,8 @@ public class ExportBackupService {
                     .append(dto.getMReportAmount()).append(",")
                     .append(dto.getMReportNarration()).append(",")
                     .append(dto.getYReportId()).append("\n");
+            ++i;
+            requestStateManager.setBackupYearlyDataState(user, (i < size), (i*100)/size);
         }
         String name="Backup of "+year+".csv";
         sendFileEmail(

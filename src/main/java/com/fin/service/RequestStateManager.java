@@ -9,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -40,8 +38,19 @@ public class RequestStateManager {
         requestStateDto.setMonthlyDataExporting(state);
         requestStateDto.setMonthlyDataExportingProgress(progress);
         requestState.put(user.getUserEmail(), requestStateDto);
+    }
 
-        //System.out.println(requestState.get(user.getUserEmail()).getMonthlyDataExportingProgress()+"\n"+requestState.get(user.getUserEmail()).isMonthlyDataExporting());
+    public void setBackupYearlyDataState(User user, boolean state, int progress){
+        if(!requestState.containsKey(user.getUserEmail())){
+            RequestStateDto requestStateDto=new RequestStateDto();
+            requestStateDto.setYearlyBackupExporting(state);
+            requestStateDto.setYearlyBackupExportingProgress(progress);
+            requestState.put(user.getUserEmail(), requestStateDto);
+        }
+        RequestStateDto requestStateDto = requestState.get(user.getUserEmail());
+        requestStateDto.setYearlyBackupExporting(state);
+        requestStateDto.setYearlyBackupExportingProgress(progress);
+        requestState.put(user.getUserEmail(), requestStateDto);
     }
 
     public ServiceResponse<List<NotificationDto>> getNotificationDetails(){
@@ -53,8 +62,14 @@ public class RequestStateManager {
 
     @Scheduled(fixedDelay = 15 * 60 * 1000)
     private void garbageCleanup(){
-        for(RequestStateDto dto: requestState.values()){
-
+        for(String key: requestState.keySet()){
+            RequestStateDto dto = requestState.get(key);
+            if(dto.getMonthlyDataExportingProgress()==100 && !dto.getMonthlyDataExportingTitle().isEmpty()) {
+                dto.setMonthlyDataExportingProgress(0);
+                dto.setMonthlyDataExportingTitle("");
+                dto.setMonthlyDataExporting(false);
+            }
+            
         }
     }
 }

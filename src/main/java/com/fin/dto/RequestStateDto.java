@@ -128,7 +128,7 @@ public class RequestStateDto {
     public void setMonthlyDataExporting(boolean monthlyDataExporting) {
         this.monthlyDataExporting = monthlyDataExporting;
         this.monthlyDataExportingTitle = monthlyDataExporting?
-                "Exporting monthly data and generating Excel file":
+                "Exporting monthly data and generating Excel file.":
                 "Monthly data has been exported successfully and the Excel file is ready.";
     }
 
@@ -138,6 +138,9 @@ public class RequestStateDto {
 
     public void setYearlyDataExporting(boolean yearlyDataExporting) {
         this.yearlyDataExporting = yearlyDataExporting;
+        this.yearlyDataExportingTitle = yearlyDataExporting?
+                "Exporting yearly data and generating Excel file.":
+                "Yearly data has been exported successfully and the Excel file is ready.";
     }
 
     public boolean isMonthlyBackupExporting() {
@@ -162,6 +165,9 @@ public class RequestStateDto {
 
     public void setYearlyBackupExporting(boolean yearlyBackupExporting) {
         this.yearlyBackupExporting = yearlyBackupExporting;
+        this.yearlyBackupExportingTitle = yearlyDataExporting?
+                "Exporting yearly backup and generating the CSV file.":
+                "Yearly backup has been exported successfully and the CSV file is ready.";
     }
 
     public boolean isYearlyBackupImporting() {

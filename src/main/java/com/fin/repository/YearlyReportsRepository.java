@@ -1,5 +1,6 @@
 package com.fin.repository;
 
+import com.fin.dto.MonthlyReportPublicDto;
 import com.fin.dto.YearlyReportPublicDto;
 import com.fin.model.YearlyReports;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,4 +36,20 @@ public interface YearlyReportsRepository extends JpaRepository<YearlyReports, Lo
 
     @Query(value = "SELECT y_report_id FROM yearly_reports WHERE y_report_year = :year AND user_id = :userId LIMIT 1", nativeQuery = true)
     Optional<Integer> isYearlyRecordsOfUserPresent(@Param("year") int year, @Param("userId") int userId);
+
+    @Query("""
+    SELECT new com.fin.dto.MonthlyReportPublicDto(
+        m.mReportId,
+        m.mReportDate,
+        m.mReportAmount,
+        m.mReportNarration,
+        y.yReportId
+    )
+    FROM MonthlyReports m
+    JOIN m.yearlyReports y
+    WHERE y.user.userId = :userId
+      AND y.yReportYear = :year
+    ORDER BY m.mReportDate DESC
+    """)
+    Optional<List<MonthlyReportPublicDto>> getYearlyRecordBackup(@Param("userId") int userId, @Param("year") int year);
 }

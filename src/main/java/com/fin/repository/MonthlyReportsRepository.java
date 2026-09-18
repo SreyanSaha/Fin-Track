@@ -64,19 +64,5 @@ public interface MonthlyReportsRepository extends JpaRepository<MonthlyReports, 
     """)
     Optional<MonthlyReportPublicDto> getMonthlyRecordOfUser(@Param("userId") int userId, @Param("mReportId")  UUID mReportId);
 
-    @Query("""
-    SELECT new com.fin.dto.MonthlyReportPublicDto(
-        m.mReportId,
-        m.mReportDate,
-        m.mReportAmount,
-        m.mReportNarration
-    )
-    FROM MonthlyReports m
-    JOIN m.yearlyReports y
-    WHERE y.user.userId = :userId
-      AND y.yReportYear = :year
-    ORDER BY m.mReportDate DESC
-    """)
-    Optional<List<MonthlyReportPublicDto>> getMonthlyRecordByYearlyReportId(@Param("userId") int userId, @Param("year") int year);
 }
 
