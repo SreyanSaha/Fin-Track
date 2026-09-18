@@ -69,7 +69,7 @@ public class MonthlyReportService {
                 monthlyReportFetchDto.getYReportYear());
 
         if(record.isEmpty()) return new ServiceResponse<>("No records found.",false);
-        exportReportService.exportRecords(monthlyReportFetchDto, user, user.getUserEmail());
+        exportReportService.exportMonthlyRecords(monthlyReportFetchDto, user, user.getUserEmail());
         return new ServiceResponse<>("Your request is being processed. The Excel file will be generated and sent to your registered email once ready.", true);
     }
 

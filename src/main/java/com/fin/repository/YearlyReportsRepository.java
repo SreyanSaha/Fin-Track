@@ -52,4 +52,18 @@ public interface YearlyReportsRepository extends JpaRepository<YearlyReports, Lo
     ORDER BY m.mReportDate DESC
     """)
     Optional<List<MonthlyReportPublicDto>> getYearlyRecordBackup(@Param("userId") int userId, @Param("year") int year);
+
+    @Query("""
+    SELECT new com.fin.dto.MonthlyReportPublicDto(
+        m.mReportDate,
+        m.mReportAmount,
+        m.mReportNarration
+    )
+    FROM MonthlyReports m
+    JOIN m.yearlyReports y
+    WHERE y.user.userId = :userId
+      AND y.yReportYear = :year
+    ORDER BY m.mReportDate DESC
+    """)
+    Optional<List<MonthlyReportPublicDto>> getYearlyRecordOfUser(@Param("userId") int userId, @Param("year") int year);
 }

@@ -2,6 +2,7 @@ package com.fin.service;
 
 import com.fin.dto.MonthlyReportFetchDto;
 import com.fin.dto.MonthlyReportPublicDto;
+import com.fin.dto.YearlyReportFetchDto;
 import com.fin.mail.MailText;
 import com.fin.model.User;
 import com.fin.repository.MonthlyReportsRepository;
@@ -42,7 +43,7 @@ public class ExportReportService {
     }
 
     @Async
-    public void exportRecords(MonthlyReportFetchDto monthlyReportFetchDto, User user, String email){
+    public void exportMonthlyRecords(MonthlyReportFetchDto monthlyReportFetchDto, User user, String email){
         Optional<List<MonthlyReportPublicDto>> optionalList = monthlyReportsRepository.getMonthlyRecordsOfUser(user.getUserId(), monthlyReportFetchDto.getYReportMonth(),
                 monthlyReportFetchDto.getYReportYear());
         if(optionalList.isEmpty())return;
@@ -51,7 +52,7 @@ public class ExportReportService {
         int size=list.size();
         double totalAmount=0;
         try(Workbook workbook = new XSSFWorkbook()){
-            String name=String.format("Monthly Report {%s-%d}", months[monthlyReportFetchDto.getYReportMonth()-1], monthlyReportFetchDto.getYReportYear());
+            String name=String.format("Monthly Report %s-%d", months[monthlyReportFetchDto.getYReportMonth()-1], monthlyReportFetchDto.getYReportYear());
             Sheet sheet = workbook.createSheet(name);
             Row headerRow=sheet.createRow(0);
             for(int i=0;i<headerLength;i++){
@@ -66,12 +67,12 @@ public class ExportReportService {
                 requestStateManager.setExportingMonthlyDataState(user, (i < size), (i*100)/size);
             }
             Row lastRow=sheet.createRow(list.size()+2);
-            String status=(totalAmount<monthlyReportFetchDto.getYReportMonthTarget())?"Deficit of ₹"+(monthlyReportFetchDto.getYReportMonthTarget()-totalAmount):
-                          (totalAmount>monthlyReportFetchDto.getYReportMonthTarget())?"Surplus of ₹"+(totalAmount-monthlyReportFetchDto.getYReportMonthTarget()):
+            String status=(totalAmount<monthlyReportFetchDto.getYReportMonthTarget())?"Deficit of: ₹"+(monthlyReportFetchDto.getYReportMonthTarget()-totalAmount):
+                          (totalAmount>monthlyReportFetchDto.getYReportMonthTarget())?"Surplus of: ₹"+(totalAmount-monthlyReportFetchDto.getYReportMonthTarget()):
                            "Monthly target met.";
             lastRow.createCell(0).setCellValue(status);
-            lastRow.createCell(1).setCellValue("Target: ₹"+monthlyReportFetchDto.getYReportMonthTarget());
-            lastRow.createCell(2).setCellValue("Collected: ₹"+totalAmount);
+            lastRow.createCell(1).setCellValue("Collected: ₹"+totalAmount);
+            lastRow.createCell(2).setCellValue("Target: ₹"+monthlyReportFetchDto.getYReportMonthTarget());
             for (int i = 0; i < headerLength; i++) {
                 sheet.autoSizeColumn(i);
             }
@@ -102,5 +103,10 @@ public class ExportReportService {
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
+    }
+
+    @Async
+    public void exportYearlyRecords(YearlyReportFetchDto yearlyReportFetchDto, User user, String email) {
+
     }
 }

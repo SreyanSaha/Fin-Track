@@ -1,8 +1,6 @@
 package com.fin.service;
 
-import com.fin.dto.ServiceResponse;
-import com.fin.dto.YearlyReportCreationDto;
-import com.fin.dto.YearlyReportPublicDto;
+import com.fin.dto.*;
 import com.fin.model.User;
 import com.fin.model.YearlyReports;
 import com.fin.repository.UserRepository;
@@ -21,14 +19,17 @@ public class YearlyReportService {
     private final UserRepository userRepository;
     private final Validation validation;
     private final ExportBackupService exportBackupService;
+    private final ExportReportService exportReportService;
 
     @Autowired
     YearlyReportService(YearlyReportsRepository yearlyReportsRepository,
-                        Validation validation, UserRepository userRepository, ExportBackupService exportBackupService){
+                        Validation validation, UserRepository userRepository,
+                        ExportBackupService exportBackupService, ExportReportService exportReportService){
         this.yearlyReportsRepository=yearlyReportsRepository;
         this.validation=validation;
         this.userRepository=userRepository;
         this.exportBackupService=exportBackupService;
+        this.exportReportService=exportReportService;
     }
 
     @Transactional
@@ -79,6 +80,19 @@ public class YearlyReportService {
         yearlyReportsRepository.delete(report.get());
 
         return new ServiceResponse<Boolean>("Yearly report deleted.",true);
+    }
+
+    public ServiceResponse<YearlyReportPublicDto> exportYearlyRecordOfUser(YearlyReportFetchDto yearlyReportFetchDto) {
+        if(!validation.validateYear(yearlyReportFetchDto.getYReportYear()))
+            return new ServiceResponse<>("Invalid year.", false);
+
+        User user=userRepository.findByUserName(SecurityContextHolder.getContext().getAuthentication().getName()).get();
+
+        Optional<Integer> record = yearlyReportsRepository.isYearlyRecordsOfUserPresent(yearlyReportFetchDto.getYReportYear(), user.getUserId());
+
+        if(record.isEmpty()) return new ServiceResponse<>("No records found.",false);
+        exportReportService.exportYearlyRecords(yearlyReportFetchDto, user, user.getUserEmail());
+        return new ServiceResponse<>("Your request is being processed. The Excel file will be generated and sent to your registered email once ready.", true);
     }
 
     public ServiceResponse<Boolean> exportBackup(int year){

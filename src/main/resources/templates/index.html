@@ -16,6 +16,8 @@
           --outline:#CAC4D0;
           --success:#2E7D32;
           --danger:#B3261E;
+          --group-a: #1967D2;
+          --group-b: #E65100;
           --shadow:rgba(0,0,0,.14);
         }
 
@@ -579,6 +581,321 @@
   color:#888;
 }
 
+.insights-panel{
+  background:var(--background);
+  border-radius:16px;
+  margin-bottom:14px;
+  overflow:hidden;
+}
+ 
+.insights-toggle{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:12px 14px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  text-align:left;
+}
+ 
+.insights-toggle-left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:700;
+  font-size:14.5px;
+  color:#333;
+  white-space:nowrap;
+}
+ 
+.insights-chips{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  flex:1;
+  min-width:0;
+}
+ 
+.insights-chip{
+  font-size:11.5px;
+  font-weight:600;
+  padding:4px 9px;
+  border-radius:20px;
+  background:white;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:150px;
+}
+.insights-chip.chip-filter{color:var(--primary);border:1.3px solid var(--primary)}
+.insights-chip.chip-a{color:var(--group-a);border:1.3px solid var(--group-a)}
+.insights-chip.chip-b{color:var(--group-b);border:1.3px solid var(--group-b)}
+ 
+.chevron{
+  font-size:14px;
+  color:#777;
+  transition:transform .2s ease;
+  min-width:16px;
+  text-align:center;
+}
+.insights-panel.open .chevron{transform:rotate(180deg)}
+ 
+.insights-body{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .25s ease;
+  padding:0 14px;
+}
+.insights-panel.open .insights-body{
+  max-height:1000px;
+  padding:0 14px 16px;
+}
+ 
+.insights-block{
+  background:white;
+  border-radius:12px;
+  padding:12px;
+  margin-top:10px;
+}
+ 
+.insights-block-label{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-weight:600;
+  font-size:13px;
+  color:#555;
+  margin-bottom:8px;
+}
+ 
+.info-btn{
+  width:19px;
+  height:19px;
+  border-radius:50%;
+  border:1.5px solid var(--primary);
+  background:white;
+  color:var(--primary);
+  font-size:11px;
+  font-weight:700;
+  font-style:italic;
+  font-family:Georgia,serif;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  line-height:1;
+  margin-left:auto;
+}
+.info-btn:hover{background:var(--primary);color:white}
+ 
+.narration-filter-wrap{
+  position:relative;
+  display:flex;
+  align-items:center;
+}
+.narration-filter-wrap input[type="text"]{
+  width:100%;
+  padding:10px 34px 10px 12px;
+  border-radius:10px;
+  border:1px solid var(--outline);
+  font-size:14px;
+}
+.narration-filter-wrap input[type="text"]:focus{
+  outline:none;
+  border-color:var(--primary);
+}
+.clear-filter-btn{
+  position:absolute;
+  right:6px;
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  border:none;
+  background:var(--background);
+  color:#777;
+  cursor:pointer;
+  font-size:13px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+.clear-filter-btn.show{display:flex}
+.clear-filter-btn:hover{background:#E7E0EC;color:var(--danger)}
+ 
+.filter-summary{
+  font-size:12.5px;
+  color:var(--primary);
+  font-weight:600;
+  background:var(--background);
+  padding:7px 10px;
+  border-radius:10px;
+  margin-top:8px;
+  display:none;
+}
+.filter-summary.show{display:block}
+ 
+.grp-pills-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+.grp-pill{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 12px;
+  border-radius:10px;
+  font-size:12.5px;
+  font-weight:600;
+  background:var(--background);
+  flex:1;
+  min-width:120px;
+  justify-content:center;
+}
+.grp-pill.pill-a{color:var(--group-a);border:1.5px solid var(--group-a)}
+.grp-pill.pill-b{color:var(--group-b);border:1.5px solid var(--group-b)}
+ 
+.op-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:8px;
+}
+.op-btn{
+  border:none;
+  background:var(--primary);
+  color:white;
+  padding:10px 8px;
+  border-radius:10px;
+  font-size:13.5px;
+  font-weight:600;
+  cursor:pointer;
+  width:100%;
+}
+.op-btn:hover{background:#5a4494}
+.op-btn.clear-btn{background:#E7E0EC;color:#444;font-weight:500}
+.op-btn.full-width{grid-column:1/-1}
+ 
+@media(min-width:600px){
+  .op-grid{grid-template-columns:repeat(4,1fr)}
+  .op-btn.full-width{grid-column:auto;width:auto;padding:10px 14px}
+  .insights-block-label .info-btn{margin-left:6px}
+}
+ 
+/* RESULT CARD */
+.analytics-result-card{
+  display:none;
+  align-items:flex-start;
+  gap:12px;
+  margin-top:10px;
+  padding:14px 16px;
+  border-radius:14px;
+  background:white;
+  border:1.5px solid var(--outline);
+}
+.analytics-result-card.show{display:flex}
+.analytics-result-card.pos{border-color:var(--success)}
+.analytics-result-card.neg{border-color:var(--danger)}
+ 
+.result-icon{
+  width:36px;
+  height:36px;
+  min-width:36px;
+  border-radius:50%;
+  background:var(--background);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:17px;
+}
+ 
+.result-title{
+  font-weight:700;
+  font-size:14.5px;
+  color:#333;
+  margin-bottom:4px;
+}
+.result-formula{
+  font-size:12.5px;
+  color:#777;
+  margin-bottom:6px;
+  word-break:break-word;
+}
+.result-value{
+  font-size:21px;
+  font-weight:700;
+}
+.result-value.pos{color:var(--success)}
+.result-value.neg{color:var(--danger)}
+.result-note{
+  font-size:12px;
+  color:#888;
+  margin-top:4px;
+}
+ 
+/* INFO MODAL */
+.info-modal-box{
+  background:white;
+  padding:24px;
+  border-radius:20px;
+  width:380px;
+  max-width:90vw;
+  text-align:left;
+}
+.info-modal-box h3{
+  margin:0 0 12px;
+  font-size:17px;
+  color:var(--primary);
+}
+.info-modal-box ol{
+  margin:0 0 16px;
+  padding-left:20px;
+  font-size:14px;
+  line-height:1.6;
+  color:#333;
+}
+.info-modal-box ol li{margin-bottom:8px}
+.info-modal-box .info-op{
+  font-size:13.5px;
+  line-height:1.6;
+  color:#444;
+  margin-bottom:6px;
+}
+.info-modal-box .info-op b{color:var(--primary)}
+.info-modal-close{
+  background:var(--primary);
+  color:white;
+  border:none;
+  padding:9px 18px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:14px;
+  float:right;
+}
+ 
+.tag-btn{
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  border:1.5px dashed var(--outline);
+  background:rgb(255, 255, 255);
+  cursor:pointer;
+  font-size:11px;
+  font-weight:700;
+  color:#999;
+  line-height:1;
+}
+.tag-btn.tag-a{background:var(--group-a);border:none;color:white}
+.tag-btn.tag-b{background:var(--group-b);border:none;color:white}
+ 
+tr.grp-row-a{box-shadow:inset 4px 0 0 var(--group-a)}
+tr.grp-row-b{box-shadow:inset 4px 0 0 var(--group-b)}
+
     </style>
 </head>
 
@@ -664,10 +981,65 @@
             <p id="recordLoadingMsg" class="msg loading">Processing request…</p>
         </div>
 
+        <div class="insights-panel" id="insightsPanel">
+            <button class="insights-toggle" onclick="toggleInsightsPanel()" aria-expanded="false">
+                <span class="insights-toggle-left">🧰 Filter &amp; Compare</span>
+                <span class="insights-chips" id="insightsChips"></span>
+                <span class="chevron">▾</span>
+            </button>
+ 
+            <div class="insights-body" id="insightsBody">
+            
+                <div class="insights-block">
+                    <div class="insights-block-label">🔍 Filter by narration</div>
+                    <div class="narration-filter-wrap">
+                        <input type="text" id="narrationFilterInput" list="narrationOptions"
+                               placeholder="Type or pick a narration, e.g. Income from shop"
+                               oninput="applyNarrationFilter()" autocomplete="off">
+                        <datalist id="narrationOptions"></datalist>
+                        <button class="clear-filter-btn" id="clearFilterBtn" onclick="clearNarrationFilter()" title="Clear filter" aria-label="Clear filter">✕</button>
+                    </div>
+                    <span class="filter-summary" id="filterSummary"></span>
+                </div>
+            
+                <div class="insights-block">
+                    <div class="insights-block-label">
+                        🏷️ Group &amp; compare
+                        <button class="info-btn" onclick="openInfoModal()" aria-label="How does this work?">i</button>
+                    </div>
+                
+                    <div class="grp-pills-row">
+                        <span class="grp-pill pill-a">Group A · <span id="grpACount">0</span> rows · ₹<span id="grpATotal">0</span></span>
+                        <span class="grp-pill pill-b">Group B · <span id="grpBCount">0</span> rows · ₹<span id="grpBTotal">0</span></span>
+                    </div>
+                
+                    <div class="op-grid">
+                        <button class="op-btn" onclick="runOperation('sum')">Sum</button>
+                        <button class="op-btn" onclick="runOperation('diff-ab')">A − B</button>
+                        <button class="op-btn" onclick="runOperation('diff-ba')">B − A</button>
+                        <button class="op-btn" onclick="runOperation('pct')">% Change</button>
+                        <button class="op-btn clear-btn full-width" onclick="clearGroups()">Clear groups</button>
+                    </div>
+                </div>
+            
+                <div class="analytics-result-card" id="analyticsResultCard">
+                    <div class="result-icon" id="resultIcon">💡</div>
+                    <div>
+                        <div class="result-title" id="resultTitle"></div>
+                        <div class="result-formula" id="resultFormula"></div>
+                        <div class="result-value" id="resultValue"></div>
+                        <div class="result-note" id="resultNote"></div>
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+
         <div class="records-scroll">
             <table>
                 <thead>
                 <tr>
+                    <th title="Tap to assign this row to Group A or Group B for the calculations below">Group</th>
                     <th>Date</th>
                     <th>Amount</th>
                     <th>Narration</th>
@@ -692,6 +1064,23 @@
     </div>
 </div>
 
+<div class="modal" id="infoModal">
+    <div class="info-modal-box">
+        <h3>Comparing your records</h3>
+        <ol>
+            <li>Click the <b>Group</b> button on any row to mark it. First tap = <span style="color:var(--group-a);font-weight:700">Group A</span>, second tap = <span style="color:var(--group-b);font-weight:700">Group B</span>, third tap = ungrouped again.</li>
+            <li>For example, to compare your first week against your second week, tag every row from days 1–7 as Group A and every row from days 8–14 as Group B.</li>
+            <li>Then pick what you want to know below:</li>
+        </ol>
+        <div class="info-op"><b>Sum</b> — adds Group A and Group B together, for a combined total.</div>
+        <div class="info-op"><b>A − B</b> — how much more (or less) Group A earned compared to Group B.</div>
+        <div class="info-op"><b>B − A</b> — the same comparison, the other way round.</div>
+        <div class="info-op"><b>% Change</b> — how much Group B is up or down compared to Group A, as a percentage. Group A is always treated as the starting point.</div>
+        <button class="info-modal-close" onclick="closeInfoModal()">Got it</button>
+        <div style="clear:both"></div>
+    </div>
+</div>
+
 <div class="responseModal" id="responseModal">
     <div class="responseModalBox">
         <div id="responseModalText"></div>
@@ -707,6 +1096,7 @@
     let selectedMonth={};
     let selectedMonthRecords=[];
     let daily;
+    let groupTags = {};
 
     function toggleSettings(){
         const menu=document.getElementById("settingsMenu");
@@ -893,61 +1283,51 @@
       daily=ym.yReportMonthTarget/days;
       document.getElementById("daily").textContent=daily.toFixed(2);
       selectedMonth = structuredClone(ym);
+      groupTags = {};                                       // <-- NEW
+      document.getElementById("narrationFilterInput").value = "";
       renderRecords();
     }
 
     const renderRecords = async ()=>{
-      recordTable.innerHTML="";
-      collected.textContent="0";
-      document.getElementById("status").innerHTML="-";
-      const recordList = await fetchRecords();
-      if(!recordList || recordList.length===0) return; 
-      selectedMonthRecords = [...recordList];
-      recordTable.innerHTML="";
-      let total=0;
-      let ratio=0;
-      recordList.forEach((r,i)=>{
-        total+=parseFloat(r.mReportAmount);
-        if(daily > 0)
-            ratio = parseFloat(r.mReportAmount) / daily;
-        let className=ratio>1?"row-good":ratio<0.9?"row-bad":"row-ok";
-        recordTable.innerHTML+=
-          '<tr class="'+className+'"">'+
-            '<td>'+r.mReportDate+'</td>'+
-            '<td>'+r.mReportAmount+'</td>'+
-            '<td>'+r.mReportNarration+'</td>'+
-            '<td class="actions">'+
-              '<button class="edit" onclick="editRow(this,' +i+')">Edit</button>'+
-              '<button class="delete" onclick="confirmDelete(\''+r.mReportId+'\', \''+r.mReportDate+'\')">Delete</button>'+
-            '</td>'+
-          '</tr>';
-      });
-      collected.textContent=total;
-      updateStatus(total);
+        recordTable.innerHTML="";
+        collected.textContent="0";
+        document.getElementById("status").innerHTML="-";
+        const recordList = await fetchRecords();
+        if(!recordList || recordList.length===0){ selectedMonthRecords=[]; updateGroupSummary(); populateNarrationOptions(); return; }
+        selectedMonthRecords = [...recordList];
+        recordTable.innerHTML="";
+        let total=0;
+        let ratio=0;
+        recordList.forEach((r,i)=>{
+          total+=parseFloat(r.mReportAmount);
+          if(daily > 0)
+              ratio = parseFloat(r.mReportAmount) / daily;
+          let className=ratio>1?"row-good":ratio<0.9?"row-bad":"row-ok";
+          recordTable.innerHTML+=buildRowHtml(r,i,className);   // <-- was an inline template before
+        });
+        collected.textContent=total;
+        updateStatus(total);
+        updateGroupSummary();      // <-- NEW
+        populateNarrationOptions(); // <-- NEW
+        applyNarrationFilter();    // <-- NEW
     }
 
     const re_renderRecords = async ()=>{
-      recordTable.innerHTML="";
-      let total=0;
-      let ratio=0;
-      selectedMonthRecords.forEach((r,i)=>{
-        total+=parseFloat(r.mReportAmount);
-        if(daily > 0)
-            ratio = parseFloat(r.mReportAmount) / daily;
-        let className=ratio>1?"row-good":ratio<0.9?"row-bad":"row-ok";
-        recordTable.innerHTML+=
-          '<tr class="'+className+'"">'+
-            '<td>'+r.mReportDate+'</td>'+
-            '<td>'+r.mReportAmount+'</td>'+
-            '<td>'+r.mReportNarration+'</td>'+
-            '<td class="actions">'+
-              '<button class="edit" onclick="editRow(this,' +i+')">Edit</button>'+
-              '<button class="delete" onclick="confirmDelete(\''+r.mReportId+'\', \''+r.mReportDate+'\')">Delete</button>'+
-            '</td>'+
-          '</tr>';
-      });
-      collected.textContent=total;
-      updateStatus(total);
+        recordTable.innerHTML="";
+        let total=0;
+        let ratio=0;
+        selectedMonthRecords.forEach((r,i)=>{
+          total+=parseFloat(r.mReportAmount);
+          if(daily > 0)
+              ratio = parseFloat(r.mReportAmount) / daily;
+          let className=ratio>1?"row-good":ratio<0.9?"row-bad":"row-ok";
+          recordTable.innerHTML+=buildRowHtml(r,i,className);   // <-- was an inline template before
+        });
+        collected.textContent=total;
+        updateStatus(total);
+        updateGroupSummary();      // <-- NEW
+        populateNarrationOptions(); // <-- NEW
+        applyNarrationFilter();    // <-- NEW
     }
 
     const updateStatus = (total)=>{
@@ -966,13 +1346,233 @@
         const row = btn.closest("tr");
         i = Number(i);
         const r = selectedMonthRecords[i];
-
+        
         row.innerHTML =
+              '<td></td>' +                                                                          // <-- NEW empty cell for the Group column
               '<td><input class="table-input" id="monthlyReportDateUpdate'+i+'" type="date" value="' + r.mReportDate + '"></td>' +
               '<td><input class="table-input" id="monthlyReportAmountUpdate'+i+'" type="number" value="' + r.mReportAmount + '"></td>' +
               '<td><input class="table-input" id="monthlyReportNarrationUpdate'+i+'" value="' + r.mReportNarration + '"></td>' +
-              //'<td><button class="cancel" onclick="renderRecords()">Cancel</button></td>'+
               '<td><button class="save" onclick="saveRow(' + i + ', this)">Save</button></td>';
+    }
+
+    function buildRowHtml(r,i,className){
+        const tag = groupTags[r.mReportId];
+        const grpRowClass = tag==='A' ? ' grp-row-a' : tag==='B' ? ' grp-row-b' : '';
+        const tagBtnClass = tag==='A' ? 'tag-a' : tag==='B' ? 'tag-b' : '';
+        const tagLabel = tag || '–';
+        const tagTitle = tag==='A' ? 'In Group A — tap to move to Group B'
+                        : tag==='B' ? 'In Group B — tap to remove from groups'
+                        : 'Not grouped — tap to assign to Group A';
+        return '<tr class="'+className+grpRowClass+'">'+
+              '<td><button class="tag-btn '+tagBtnClass+'" onclick="cycleGroup(\''+r.mReportId+'\')" title="'+tagTitle+'">'+tagLabel+'</button></td>'+
+              '<td>'+r.mReportDate+'</td>'+
+              '<td>'+r.mReportAmount+'</td>'+
+              '<td class="narration-cell">'+r.mReportNarration+'</td>'+
+              '<td class="actions">'+
+                '<button class="edit" onclick="editRow(this,' +i+')">Edit</button>'+
+                '<button class="delete" onclick="confirmDelete(\''+r.mReportId+'\', \''+r.mReportDate+'\')">Delete</button>'+
+              '</td>'+
+            '</tr>';
+    }
+
+    function populateNarrationOptions(){
+        const list = document.getElementById("narrationOptions");
+        const unique = [...new Set(
+            selectedMonthRecords
+                .map(r => (r.mReportNarration || "").trim())
+                .filter(n => n !== "")
+        )].sort((a,b)=>a.localeCompare(b));
+        list.innerHTML = unique.map(n => '<option value="'+n.replace(/"/g,'&quot;')+'"></option>').join("");
+    }
+ 
+    function getFilteredRecords(){
+        const q = document.getElementById("narrationFilterInput").value.trim().toLowerCase();
+        if(!q) return selectedMonthRecords;
+        return selectedMonthRecords.filter(r => (r.mReportNarration||"").toLowerCase().includes(q));
+    }
+ 
+    function applyNarrationFilter(){
+        const q = document.getElementById("narrationFilterInput").value.trim().toLowerCase();
+        const rows = document.querySelectorAll("#recordTable > tr");
+        let visibleCount = 0;
+    
+        rows.forEach((row, idx)=>{
+            const r = selectedMonthRecords[idx];
+            const match = !q || (r && (r.mReportNarration||"").toLowerCase().includes(q));
+            row.style.display = match ? "" : "none";
+            if(match) visibleCount++;
+        });
+    
+        document.getElementById("clearFilterBtn").classList.toggle("show", q.length > 0);
+    
+        const summary = document.getElementById("filterSummary");
+        if(!q){
+            summary.classList.remove("show");
+            summary.textContent = "";
+            updateInsightsChips();
+            return;
+        }
+    
+        const filtered = getFilteredRecords();
+        const filteredTotal = filtered.reduce((sum,r)=>sum+parseFloat(r.mReportAmount||0),0);
+    
+        if(visibleCount === 0){
+            summary.textContent = 'No records match "'+q+'".';
+        }else{
+            summary.textContent = 'Showing '+visibleCount+' of '+selectedMonthRecords.length+' records for "'+q+'" · ₹'+filteredTotal.toFixed(2)+' total';
+        }
+        summary.classList.add("show");
+        updateInsightsChips();
+    }
+ 
+    function clearNarrationFilter(){
+        document.getElementById("narrationFilterInput").value = "";
+        applyNarrationFilter();
+    }
+
+    function toggleInsightsPanel(){
+        document.getElementById("insightsPanel").classList.toggle("open");
+    }
+ 
+    function updateInsightsChips(){
+        const chips = document.getElementById("insightsChips");
+        const q = document.getElementById("narrationFilterInput").value.trim();
+        const aCount = getGroupCount('A');
+        const bCount = getGroupCount('B');
+        let html = "";
+    
+        if(q){
+            html += '<span class="insights-chip chip-filter">🔍 "'+q+'"</span>';
+        }
+        if(aCount>0){
+            html += '<span class="insights-chip chip-a">A · '+aCount+'</span>';
+        }
+        if(bCount>0){
+            html += '<span class="insights-chip chip-b">B · '+bCount+'</span>';
+        }
+        chips.innerHTML = html;
+    }
+
+    function openInfoModal(){ document.getElementById("infoModal").style.display="flex"; }
+    function closeInfoModal(){ document.getElementById("infoModal").style.display="none"; }
+    
+    function hideResultCard(){
+        document.getElementById("analyticsResultCard").classList.remove("show","pos","neg");
+    }
+    
+    function cycleGroup(id){
+        const current = groupTags[id];
+        if(!current) groupTags[id] = 'A';
+        else if(current==='A') groupTags[id] = 'B';
+        else delete groupTags[id];
+    
+        hideResultCard();
+        re_renderRecords();
+    }
+    
+    function clearGroups(){
+        groupTags = {};
+        hideResultCard();
+        re_renderRecords();
+    }
+    
+    function getGroupTotal(letter){
+        return selectedMonthRecords
+            .filter(r=>groupTags[r.mReportId]===letter)
+            .reduce((sum,r)=>sum+parseFloat(r.mReportAmount||0),0);
+    }
+    function getGroupCount(letter){
+        return selectedMonthRecords.filter(r=>groupTags[r.mReportId]===letter).length;
+    }
+ 
+    function updateGroupSummary(){
+        document.getElementById("grpACount").textContent = getGroupCount('A');
+        document.getElementById("grpBCount").textContent = getGroupCount('B');
+        document.getElementById("grpATotal").textContent = getGroupTotal('A').toFixed(2).replace(/\.00$/,'');
+        document.getElementById("grpBTotal").textContent = getGroupTotal('B').toFixed(2).replace(/\.00$/,'');
+        updateInsightsChips();
+    }
+    
+    function showResult({icon, title, formula, value, valueClass, note}){
+        const card = document.getElementById("analyticsResultCard");
+        document.getElementById("resultIcon").textContent = icon;
+        document.getElementById("resultTitle").textContent = title;
+        document.getElementById("resultFormula").textContent = formula || "";
+        const valueEl = document.getElementById("resultValue");
+        valueEl.textContent = value;
+        valueEl.className = "result-value" + (valueClass ? " "+valueClass : "");
+        document.getElementById("resultNote").textContent = note || "";
+    
+        card.classList.remove("pos","neg");
+        if(valueClass) card.classList.add(valueClass);
+        card.classList.add("show");
+    }
+ 
+    function runOperation(op){
+        const a = getGroupTotal('A');
+        const b = getGroupTotal('B');
+        const aCount = getGroupCount('A');
+        const bCount = getGroupCount('B');
+    
+        if(aCount===0 && bCount===0){
+            showResult({
+                icon: "🏷️",
+                title: "No rows grouped yet",
+                formula: "",
+                value: "Tap the Group button on a few rows first",
+                note: "Use the (i) button above to see how grouping works."
+            });
+            return;
+        }
+    
+        if(op==='sum'){
+            showResult({
+                icon: "➕",
+                title: "Total of Group A and Group B",
+                formula: "₹"+a.toFixed(2)+" + ₹"+b.toFixed(2),
+                value: "₹"+(a+b).toFixed(2)
+            });
+        }else if(op==='diff-ab'){
+            const d = a-b;
+            showResult({
+                icon: "➖",
+                title: "Group A minus Group B",
+                formula: "₹"+a.toFixed(2)+" − ₹"+b.toFixed(2),
+                value: (d>=0?"+":"−")+"₹"+Math.abs(d).toFixed(2),
+                valueClass: d>=0 ? "pos" : "neg",
+                note: d>0 ? "Group A earned more than Group B." : d<0 ? "Group B earned more than Group A." : "Group A and Group B are equal."
+            });
+        }else if(op==='diff-ba'){
+            const d = b-a;
+            showResult({
+                icon: "➖",
+                title: "Group B minus Group A",
+                formula: "₹"+b.toFixed(2)+" − ₹"+a.toFixed(2),
+                value: (d>=0?"+":"−")+"₹"+Math.abs(d).toFixed(2),
+                valueClass: d>=0 ? "pos" : "neg",
+                note: d>0 ? "Group B earned more than Group A." : d<0 ? "Group A earned more than Group B." : "Group A and Group B are equal."
+            });
+        }else if(op==='pct'){
+            if(a===0){
+                showResult({
+                    icon: "📊",
+                    title: "Percentage change from Group A to Group B",
+                    formula: "",
+                    value: "Can't calculate yet",
+                    note: "Group A's total is ₹0. Group A needs a non-zero total to compare against."
+                });
+            }else{
+                const pct = ((b-a)/a)*100;
+                showResult({
+                    icon: "📊",
+                    title: "Percentage change from Group A to Group B",
+                    formula: "(₹"+b.toFixed(2)+" − ₹"+a.toFixed(2)+") ÷ ₹"+a.toFixed(2)+" × 100",
+                    value: (pct>=0?"+":"")+pct.toFixed(1)+"%",
+                    valueClass: pct>=0 ? "pos" : "neg",
+                    note: "Group A (₹"+a.toFixed(2)+") is the starting point; Group B is "+(pct>=0?"up":"down")+" "+Math.abs(pct).toFixed(1)+"% from it."
+                });
+            }
+        }
     }
 
     const fetchRecords = async ()=>{

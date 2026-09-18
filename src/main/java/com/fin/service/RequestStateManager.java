@@ -61,15 +61,16 @@ public class RequestStateManager {
     }
 
     @Scheduled(fixedDelay = 15 * 60 * 1000)
-    private void garbageCleanup(){
+    private void garbageCleanup(){// not done yet
         for(String key: requestState.keySet()){
+            int flag=0;// limit is 9
             RequestStateDto dto = requestState.get(key);
             if(dto.getMonthlyDataExportingProgress()==100 && !dto.getMonthlyDataExportingTitle().isEmpty()) {
                 dto.setMonthlyDataExportingProgress(0);
                 dto.setMonthlyDataExportingTitle("");
                 dto.setMonthlyDataExporting(false);
             }
-            
+
         }
     }
 }
