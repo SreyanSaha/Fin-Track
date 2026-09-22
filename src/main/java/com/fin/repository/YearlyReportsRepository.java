@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -63,7 +62,7 @@ public interface YearlyReportsRepository extends JpaRepository<YearlyReports, Lo
     JOIN m.yearlyReports y
     WHERE y.user.userId = :userId
       AND y.yReportYear = :year
-    ORDER BY m.mReportDate DESC
+    ORDER BY m.mReportDate ASC
     """)
     Optional<List<MonthlyReportPublicDto>> getYearlyRecordOfUser(@Param("userId") int userId, @Param("year") int year);
 }

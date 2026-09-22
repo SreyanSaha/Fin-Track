@@ -56,6 +56,21 @@ public final class MailText {
         	FinTrack Team
     """;
 
+	private final String exportReportYearlyMailSubject = "Your FinTrack Yearly Report - ${year}";
+	private final String exportReportYearlyMail = """
+    Dear User,
+
+        Your FinTrack Yearly Report for ${year} has been successfully generated.
+
+        📄 The Excel file containing your report is attached to this email.
+        You can download and review it at your convenience.
+
+        If you did not request this report, please contact us immediately.
+
+    Regards,
+        FinTrack Team
+   """;
+
 	private final String forgotPasswordOtpMailSubject = "Your OTP for Password Reset";
 	private final String forgotPasswordOtpMail = """
         Dear User,
@@ -91,6 +106,12 @@ public final class MailText {
         FinTrack Team
     """;
 
+	public String getExportReportYearlyMailSubject() {
+		return exportReportYearlyMailSubject;
+	}
+	public String getExportReportYearlyMail() {
+		return exportReportYearlyMail;
+	}
 	public String getExportBackupReportYearlyMailSubject() {
 		return exportBackupReportYearlyMailSubject;
 	}

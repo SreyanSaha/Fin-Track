@@ -1,9 +1,6 @@
 package com.fin.controller;
 
-import com.fin.dto.ExportYearlyBackupDto;
-import com.fin.dto.ServiceResponse;
-import com.fin.dto.YearlyReportCreationDto;
-import com.fin.dto.YearlyReportPublicDto;
+import com.fin.dto.*;
 import com.fin.service.YearlyReportService;
 import org.hibernate.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +39,12 @@ public class yearlyReportController {
     @PostMapping("/export-backup")
     public ResponseEntity<?> exportYearlyReportBackup(@RequestBody ExportYearlyBackupDto exportYearlyBackupDto){
         ServiceResponse<Boolean> response = yearlyReportService.exportBackup(exportYearlyBackupDto.getYear());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/export-report")
+    public ResponseEntity<?> exportYearlyReport(YearlyReportFetchDto yearlyReportFetchDto){
+        ServiceResponse<YearlyReportPublicDto> response = yearlyReportService.exportYearlyReport(yearlyReportFetchDto);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

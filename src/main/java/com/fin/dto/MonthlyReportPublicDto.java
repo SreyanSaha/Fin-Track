@@ -32,6 +32,14 @@ public class MonthlyReportPublicDto {
         this.mReportNarration = mReportNarration;
     }
 
+    public MonthlyReportPublicDto(LocalDate mReportDate,
+                                  Double mReportAmount,
+                                  String mReportNarration) {
+        this.mReportDate = mReportDate;
+        this.mReportAmount = mReportAmount;
+        this.mReportNarration = mReportNarration;
+    }
+
     public String getMReportId() {
         return mReportId;
     }

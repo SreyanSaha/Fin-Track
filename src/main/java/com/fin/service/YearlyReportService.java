@@ -82,7 +82,7 @@ public class YearlyReportService {
         return new ServiceResponse<Boolean>("Yearly report deleted.",true);
     }
 
-    public ServiceResponse<YearlyReportPublicDto> exportYearlyRecordOfUser(YearlyReportFetchDto yearlyReportFetchDto) {
+    public ServiceResponse<YearlyReportPublicDto> exportYearlyReport(YearlyReportFetchDto yearlyReportFetchDto) {
         if(!validation.validateYear(yearlyReportFetchDto.getYReportYear()))
             return new ServiceResponse<>("Invalid year.", false);
 

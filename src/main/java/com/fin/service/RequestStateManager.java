@@ -40,6 +40,19 @@ public class RequestStateManager {
         requestState.put(user.getUserEmail(), requestStateDto);
     }
 
+    public void setExportingYearlyDataState(User user, boolean state, int progress){
+        if(!requestState.containsKey(user.getUserEmail())){
+            RequestStateDto requestStateDto=new RequestStateDto();
+            requestStateDto.setYearlyDataExporting(state);
+            requestStateDto.setYearlyDataExportingProgress(progress);
+            requestState.put(user.getUserEmail(), requestStateDto);
+        }
+        RequestStateDto requestStateDto = requestState.get(user.getUserEmail());
+        requestStateDto.setYearlyDataExporting(state);
+        requestStateDto.setYearlyDataExportingProgress(progress);
+        requestState.put(user.getUserEmail(), requestStateDto);
+    }
+
     public void setBackupYearlyDataState(User user, boolean state, int progress){
         if(!requestState.containsKey(user.getUserEmail())){
             RequestStateDto requestStateDto=new RequestStateDto();
