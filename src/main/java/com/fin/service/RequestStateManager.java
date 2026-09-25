@@ -17,6 +17,7 @@ public class RequestStateManager {
     private final ConcurrentHashMap<String, RequestStateDto> requestState=new
             ConcurrentHashMap<String, RequestStateDto>();
     private final UserRepository userRepository;
+    private final int FLAG_LIMIT=3;
 
     @Autowired
     RequestStateManager(UserRepository userRepository){
@@ -74,16 +75,27 @@ public class RequestStateManager {
     }
 
     @Scheduled(fixedDelay = 15 * 60 * 1000)
-    private void garbageCleanup(){// not done yet
+    private void garbageCleanup(){
         for(String key: requestState.keySet()){
-            int flag=0;// limit is 9
+            int flag=0;// limit is 3
             RequestStateDto dto = requestState.get(key);
-            if(dto.getMonthlyDataExportingProgress()==100 && !dto.getMonthlyDataExportingTitle().isEmpty()) {
+            if(dto.getMonthlyDataExportingProgress()>=100 && !dto.isMonthlyDataExporting() && !dto.getMonthlyDataExportingTitle().isEmpty()) {
                 dto.setMonthlyDataExportingProgress(0);
                 dto.setMonthlyDataExportingTitle("");
-                dto.setMonthlyDataExporting(false);
+                flag++;
             }
-
+            if(dto.getYearlyDataExportingProgress()>=100 && !dto.isYearlyDataExporting() && !dto.getYearlyDataExportingTitle().isEmpty()){
+                dto.setYearlyDataExportingProgress(0);
+                dto.setYearlyDataExportingTitle("");
+                flag++;
+            }
+            //if(){}
+            if(dto.getYearlyBackupExportingProgress()>=100 && !dto.isYearlyBackupExporting() && !dto.getYearlyBackupExportingTitle().isEmpty()){
+                dto.setYearlyBackupExportingProgress(0);
+                dto.setYearlyBackupExportingTitle("");
+                flag++;
+            }
+            if(flag==FLAG_LIMIT) requestState.remove(key);
         }
     }
 }

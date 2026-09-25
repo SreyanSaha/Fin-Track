@@ -8,7 +8,7 @@ import java.util.List;
 public class RequestStateDto {
     private User user;
     private boolean monthlyDataExporting=false, yearlyDataExporting=false, monthlyBackupExporting=false,
-            monthlyBackupImporting=false, yearlyBackupExporting=false, yearlyBackupImporting=false, isLoggedIn=false,
+            monthlyBackupImporting=false, yearlyBackupExporting=false, yearlyBackupImporting=false,
             canWrite=true, signupOtpReceived=false, forgetPasswordOtpReceived=false;
     private LocalDateTime signupOtpExpiry=null, forgetPasswordOtpExpiry=null;
     private int monthlyDataExportingProgress=0, yearlyDataExportingProgress=0,
@@ -176,14 +176,6 @@ public class RequestStateDto {
 
     public void setYearlyBackupImporting(boolean yearlyBackupImporting) {
         this.yearlyBackupImporting = yearlyBackupImporting;
-    }
-
-    public boolean isLoggedIn() {
-        return isLoggedIn;
-    }
-
-    public void setLoggedIn(boolean loggedIn) {
-        isLoggedIn = loggedIn;
     }
 
     public boolean isCanWrite() {
